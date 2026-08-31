@@ -184,6 +184,27 @@ const { title, description } = Astro.props;
 				if (document.fonts && document.fonts.ready) {
 					document.fonts.ready.then(() => ScrollTrigger.refresh());
 				}
+
+				// Red de seguridad: las imágenes diferidas cambian la altura de la página
+				// después de que ScrollTrigger calculó los triggers, y una animación puede
+				// quedarse sin disparar dejando su bloque invisible. Tras 'load' se
+				// recalcula y se muestra a la fuerza lo que siga en opacity 0 y ya sea
+				// visible en pantalla.
+				window.addEventListener('load', () => {
+					ScrollTrigger.refresh();
+					const rescatar = () => {
+						document.querySelectorAll('[data-reveal], [data-reveal-stagger]').forEach((el) => {
+							const r = el.getBoundingClientRect();
+							if (r.top > window.innerHeight) return; // aún no le toca
+							const objetivos = el.hasAttribute('data-reveal-stagger') ? el.children : [el];
+							Array.from(objetivos).forEach((t) => {
+								if (parseFloat(getComputedStyle(t).opacity) === 0) settle(el, objetivos);
+							});
+						});
+					};
+					rescatar();
+					window.addEventListener('scroll', rescatar, { passive: true });
+				});
 			});
 		</script>
 	</body>

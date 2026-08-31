@@ -119,11 +119,11 @@ const cobertura = [
 ];
 
 const unidades = [
-  { icon: 'ph-package', nombre: "Caja Seca 53'" },
-  { icon: 'ph-stack-simple', nombre: "Full de Plataformas 40'" },
-  { icon: 'ph-truck-trailer', nombre: "Full de Cajas Secas 40'" },
-  { icon: 'ph-tent', nombre: "Encortinados 40'" },
-  { icon: 'ph-truck', nombre: 'Nodrizas' },
+  { icon: 'ph-package', nombre: "Caja Seca 53'", img: '/images/tle-unidades-01.webp', alt: "Tractocamión TLE con caja seca de 53 pies" },
+  { icon: 'ph-stack-simple', nombre: "Full de Plataformas 40'", img: '/images/tle-servicios-tn-03.webp', alt: 'Plataforma TLE con carga sobredimensionada' },
+  { icon: 'ph-truck-trailer', nombre: "Full de Cajas Secas 40'", img: '/images/tle-unidades-03.webp', alt: 'Full TLE con dos cajas secas de 40 pies en carretera' },
+  { icon: 'ph-tent', nombre: "Encortinados 40'", img: '/images/plataforma.webp', alt: 'Unidad TLE encortinada de 40 pies' },
+  { icon: 'ph-truck', nombre: 'Nodrizas', img: '/images/nodriza.png', alt: 'Flotilla de nodrizas TLE para transporte de automóviles' },
 ];
 
 const proceso = [
@@ -419,19 +419,51 @@ const reconocimientos = [
   <!-- ===================== 7. UNIDADES ===================== -->
   <section id="unidades" class="py-20 bg-tle-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div data-reveal class="text-center mb-14">
+      <div data-reveal class="text-left mb-14">
         <h2 class="text-2xl sm:text-3xl font-display font-bold text-tle-black uppercase tracking-wide">Unidades</h2>
-        <div class="w-16 h-1 bg-tle-primary mx-auto mt-4"></div>
+        <div class="w-16 h-1 bg-tle-primary mt-4"></div>
       </div>
 
-      <!-- Pendiente: fotografía de una unidad real -->
-      <div data-reveal-stagger class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {unidades.map((u) => (
-          <div class="bg-tle-secondary p-6 rounded-sm text-center border-b-4 border-tle-primary">
-            <i class={`ph ${u.icon} text-3xl text-tle-black mb-3 block`}></i>
-            <span class="text-sm font-bold text-tle-black">{u.nombre}</span>
-          </div>
-        ))}
+      <!-- items-stretch: la columna de la imagen iguala la altura de la lista -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
+        <!-- Columna izquierda: selector de unidad -->
+        <div data-reveal-stagger role="tablist" aria-label="Tipos de unidad" class="flex flex-col gap-3">
+          {unidades.map((u, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`unidad-tab-${i}`}
+              aria-controls={`unidad-panel-${i}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? '0' : '-1'}
+              data-unidad={i}
+              class="group w-full text-left flex items-center gap-4 p-5 rounded-sm bg-tle-secondary border-l-4 border-transparent transition-all hover:bg-gray-100 aria-selected:bg-tle-black aria-selected:border-tle-primary cursor-pointer"
+            >
+              <i class={`ph ${u.icon} text-2xl text-tle-black shrink-0 group-aria-selected:text-tle-primary`}></i>
+              <span class="text-sm font-bold text-tle-black group-aria-selected:text-tle-white">{u.nombre}</span>
+              <i class="ph ph-arrow-right ml-auto text-tle-primary opacity-0 group-aria-selected:opacity-100 transition-opacity"></i>
+            </button>
+          ))}
+        </div>
+
+        <!-- Columna derecha: imagen de la unidad seleccionada -->
+        <div data-reveal class="relative w-full h-full aspect-16/10 lg:aspect-auto rounded-sm overflow-hidden bg-tle-secondary">
+          {unidades.map((u, i) => (
+            <figure
+              role="tabpanel"
+              id={`unidad-panel-${i}`}
+              aria-labelledby={`unidad-tab-${i}`}
+              data-panel={i}
+              hidden={i !== 0}
+              class="absolute inset-0 m-0"
+            >
+              <img src={u.img} alt={u.alt} loading="lazy" class="absolute inset-0 w-full h-full object-cover" />
+              <figcaption class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent text-tle-white text-sm font-bold p-5">
+                {u.nombre}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
       </div>
     </div>
   </section>
@@ -653,3 +685,68 @@ const reconocimientos = [
   </footer>
 
 </Layout>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const tabs = Array.from(document.querySelectorAll('[data-unidad]'));
+    const panels = Array.from(document.querySelectorAll('[data-panel]'));
+    if (!tabs.length) return;
+
+    const activar = (i) => {
+      tabs.forEach((t, j) => {
+        t.setAttribute('aria-selected', String(j === i));
+        t.setAttribute('tabindex', j === i ? '0' : '-1');
+      });
+      panels.forEach((p, j) => { p.hidden = j !== i; });
+    };
+
+    // --- Avance automático ---
+    const REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const INTERVALO = 4000;
+    let actual = 0;
+    let timer = null;
+
+    const arrancar = () => {
+      if (REDUCE || timer) return;
+      timer = setInterval(() => {
+        actual = (actual + 1) % tabs.length;
+        activar(actual);
+      }, INTERVALO);
+    };
+    const detener = () => { clearInterval(timer); timer = null; };
+
+    // Al interactuar se detiene: si la persona eligió una unidad, no se le
+    // cambia debajo. Se reanuda al salir el cursor de la sección.
+    const seleccionManual = (i) => { detener(); actual = i; activar(i); };
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => seleccionManual(i));
+      // Flechas para moverse entre unidades sin salir del teclado.
+      tab.addEventListener('keydown', (e) => {
+        const dir = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1
+                  : e.key === 'ArrowUp' || e.key === 'ArrowLeft' ? -1 : 0;
+        if (!dir) return;
+        e.preventDefault();
+        const siguiente = (i + dir + tabs.length) % tabs.length;
+        seleccionManual(siguiente);
+        tabs[siguiente].focus();
+      });
+    });
+
+    const seccion = document.getElementById('unidades');
+    seccion.addEventListener('mouseenter', detener);
+    seccion.addEventListener('mouseleave', arrancar);
+    seccion.addEventListener('focusin', detener);
+
+    // Solo rota mientras la sección está a la vista, y se pausa si la pestaña
+    // pasa a segundo plano.
+    new IntersectionObserver(
+      ([entrada]) => (entrada.isIntersecting ? arrancar() : detener()),
+      { threshold: 0.3 }
+    ).observe(seccion);
+
+    document.addEventListener('visibilitychange', () => {
+      document.hidden ? detener() : arrancar();
+    });
+  });
+</script>
