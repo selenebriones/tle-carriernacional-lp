@@ -701,23 +701,33 @@ const reconocimientos = [
     };
 
     // --- Avance automático ---
+    // Un solo temporizador que siempre corre; en cada tick decide si avanza.
+    // Antes se arrancaba y detenía con mouseenter/mouseleave e IntersectionObserver,
+    // pero si el cursor ya estaba sobre la sección al llegar (lo normal al hacer
+    // scroll), la pausa se activaba y nunca se reanudaba.
     const REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const INTERVALO = 4000;
+    const seccion = document.getElementById('unidades');
     let actual = 0;
-    let timer = null;
+    let elegidaAMano = false;
 
-    const arrancar = () => {
-      if (REDUCE || timer) return;
-      timer = setInterval(() => {
+    const enPantalla = () => {
+      const r = seccion.getBoundingClientRect();
+      return r.top < window.innerHeight && r.bottom > 0;
+    };
+
+    if (!REDUCE) {
+      setInterval(() => {
+        if (elegidaAMano || document.hidden || !enPantalla()) return;
+        if (seccion.contains(document.activeElement)) return; // alguien navegando con teclado
         actual = (actual + 1) % tabs.length;
         activar(actual);
       }, INTERVALO);
-    };
-    const detener = () => { clearInterval(timer); timer = null; };
+    }
 
-    // Al interactuar se detiene: si la persona eligió una unidad, no se le
-    // cambia debajo. Se reanuda al salir el cursor de la sección.
-    const seleccionManual = (i) => { detener(); actual = i; activar(i); };
+    // Al elegir una unidad la rotación se detiene: si la persona quiso verla,
+    // no se le cambia debajo.
+    const seleccionManual = (i) => { elegidaAMano = true; actual = i; activar(i); };
 
     tabs.forEach((tab, i) => {
       tab.addEventListener('click', () => seleccionManual(i));
@@ -731,22 +741,6 @@ const reconocimientos = [
         seleccionManual(siguiente);
         tabs[siguiente].focus();
       });
-    });
-
-    const seccion = document.getElementById('unidades');
-    seccion.addEventListener('mouseenter', detener);
-    seccion.addEventListener('mouseleave', arrancar);
-    seccion.addEventListener('focusin', detener);
-
-    // Solo rota mientras la sección está a la vista, y se pausa si la pestaña
-    // pasa a segundo plano.
-    new IntersectionObserver(
-      ([entrada]) => (entrada.isIntersecting ? arrancar() : detener()),
-      { threshold: 0.3 }
-    ).observe(seccion);
-
-    document.addEventListener('visibilitychange', () => {
-      document.hidden ? detener() : arrancar();
     });
   });
 </script>
