@@ -40,7 +40,7 @@ const servicios = [
   {
     icon: 'ph-package',
     titulo: 'Caja Seca',
-    img: '/images/tle-servicios-tn-01-1.webp',
+    img: '/images/camion_caja_seca.webp',
     bullets: [
       'Protege tu mercancía frente a robos, daños físicos e inclemencias climáticas durante el traslado.',
       'Ideal para el movimiento continuo de mercancía general y no perecedera en rutas nacionales.',
@@ -50,7 +50,7 @@ const servicios = [
   {
     icon: 'ph-stack-simple',
     titulo: 'Plataforma',
-    img: '/images/plataforma.webp',
+    img: '/images/camion_plataforma.webp',
     bullets: [
       'Facilita la maniobra de carga y descarga lateral o superior en mercancías no estandarizadas.',
       'Diseñada para el traslado de estructuras, acero, materiales de construcción y carga sobredimensionada.',
@@ -192,13 +192,13 @@ const reconocimientos = [
     <div class="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/25 z-10"></div>
     <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent z-10"></div>
     <img
-      src="/images/hero_TLE.jpg"
-      alt="Tractocamión TLE en carretera con doble caja seca"
+      src="/images/hero.webp"
+      alt="Tractocamión TLE con plataforma en patio de maniobras"
       data-parallax
       fetchpriority="high"
-      width="800"
-      height="600"
-      class="absolute inset-0 w-full h-full object-cover object-[72%_center] opacity-70 z-0"
+      width="1456"
+      height="971"
+      class="absolute inset-0 w-full h-full object-cover object-center opacity-70 z-0"
     />
 
     <div class="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 w-full">
@@ -248,8 +248,21 @@ const reconocimientos = [
 
 
   <!-- ===================== 3. RESPALDO (línea horizontal) ===================== -->
-  <section class="py-20 bg-tle-secondary">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <section class="relative py-20 bg-tle-secondary overflow-hidden">
+    <!-- Fondo: la flotilla en escala de grises, muy tenue para no competir con el texto. -->
+    <img
+      src="/images/bg_respaldo.webp"
+      alt=""
+      aria-hidden="true"
+      loading="lazy"
+      width="1429"
+      height="702"
+      class="absolute inset-0 w-full h-full object-cover grayscale opacity-18 pointer-events-none select-none"
+    />
+    <!-- Vela clara: mantiene el contraste del texto por encima de la fotografía. -->
+    <div class="absolute inset-0 bg-tle-secondary/35" aria-hidden="true"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div data-reveal class="text-center mb-14">
         <h2 class="text-2xl sm:text-3xl font-display font-bold text-tle-black uppercase tracking-wide">Respaldo</h2>
         <div class="w-16 h-1 bg-tle-primary mx-auto mt-4"></div>
@@ -590,8 +603,20 @@ const reconocimientos = [
 
 
   <!-- ===================== 12. COTIZACIÓN ===================== -->
-  <section id="contacto" class="py-24 bg-tle-primary">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+  <section id="contacto" class="relative py-24 bg-tle-primary overflow-hidden">
+    <!-- Fondo: la flotilla en escala de grises, tenue bajo una capa del amarillo TLE. -->
+    <img
+      src="/images/bg_contacto.webp"
+      alt=""
+      aria-hidden="true"
+      loading="lazy"
+      width="1426"
+      height="951"
+      class="absolute inset-0 w-full h-full object-cover grayscale opacity-30 pointer-events-none select-none"
+    />
+    <div class="absolute inset-0 bg-tle-primary/55" aria-hidden="true"></div>
+
+    <div class="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
       <div data-reveal class="text-center mb-12">
         <h2 class="text-2xl sm:text-4xl font-display font-extrabold text-tle-black mb-4 uppercase">Solicita una cotización nacional</h2>
         <p class="text-tle-black/70 text-sm max-w-2xl mx-auto leading-relaxed">
