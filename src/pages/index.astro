@@ -187,7 +187,9 @@ const reconocimientos = [
   { anios: '2025, 2023 & 2018', premio: 'GM Supplier of the Year', logo: '/images/logo_gm.png', marca: 'General Motors' },
   { anios: '11°', premio: 'Carrier Excellence Awards AAA Category', logo: '/images/penske.webp', marca: 'Penske' },
   { anios: '2025', premio: 'Recognition for Shared Excellence', logo: '/images/dsv_logo.webp', marca: 'DSV' },
-  { anios: '2023, 2022, 2018 & 2017', premio: 'Best Quality and Co-creation Award', logo: '/images/logo_mazda.webp', marca: 'Mazda' },
+  // Logo de Mazda oculto a pedido del cliente. El archivo sigue en
+  // public/images/logo_mazda.webp: basta devolver el campo para mostrarlo.
+  { anios: '2023, 2022, 2018 & 2017', premio: 'Best Quality and Co-creation Award' },
   { anios: '2021', premio: 'Ever Better and AAA Customer Award', logo: '/images/ryder.webp', marca: 'Ryder' },
   { anios: '2020', premio: 'Best Carrier Award', logo: '/images/constellation.webp', marca: 'Constellation Brands' },
   { anios: '2018', premio: 'Golden Carrier', logo: '/images/maersk.webp', marca: 'Maersk' },
@@ -605,7 +607,9 @@ const reconocimientos = [
             {/* Caja de alto fijo para que el año y el premio queden a la misma
                 altura en todas las tarjetas, tengan logo o no. */}
             <div class="h-12 flex items-center mb-4">
-              <img src={r.logo} alt={r.marca} loading="lazy" class="max-h-12 w-auto max-w-[70%] object-contain object-left" />
+              {r.logo && (
+                <img src={r.logo} alt={r.marca} loading="lazy" class="max-h-12 w-auto max-w-[70%] object-contain object-left" />
+              )}
             </div>
             <span class="block text-xs font-bold text-tle-accent tracking-wide mb-2">{r.anios}</span>
             <p class="text-sm font-semibold text-tle-black leading-snug">{r.premio}</p>
