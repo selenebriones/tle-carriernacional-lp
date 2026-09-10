@@ -1,12 +1,22 @@
 ---
 import '../styles/global.css';
+import Footer from '../components/Footer.astro';
 
 interface Props {
 	title: string;
 	description: string;
+	/** Para páginas de confirmación: no deben indexarse ni competir con la landing. */
+	noindex?: boolean;
 }
 
-const { title, description } = Astro.props;
+const { title, description, noindex = false } = Astro.props;
+
+const enlaces = [
+	{ href: '/#servicios', texto: 'Servicios' },
+	{ href: '/#cobertura', texto: 'Cobertura' },
+	{ href: '/#unidades', texto: 'Unidades' },
+	{ href: '/#proceso', texto: 'Proceso' },
+];
 ---
 
 <!doctype html>
@@ -17,6 +27,7 @@ const { title, description } = Astro.props;
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
+		{noindex && <meta name="robots" content="noindex, nofollow" />}
 
 		<!-- Activa las animaciones solo si hay JS y el usuario no pidió reducir movimiento.
 		     Va inline y en el <head> para que corra antes del primer paint (evita flash). -->
@@ -52,24 +63,62 @@ const { title, description } = Astro.props;
 				<a href="/" class="shrink-0" aria-label="TLE — inicio">
 					<img src="/images/tle-logo.webp" alt="TLE" width="350" height="150" class="h-11 w-auto" />
 				</a>
-				<nav class="hidden md:flex gap-8">
-					<a href="#servicios" class="text-sm font-medium hover:text-tle-primary transition-colors">Servicios</a>
-					<a href="#cobertura" class="text-sm font-medium hover:text-tle-primary transition-colors">Cobertura</a>
-					<a href="#unidades" class="text-sm font-medium hover:text-tle-primary transition-colors">Unidades</a>
-					<a href="#proceso" class="text-sm font-medium hover:text-tle-primary transition-colors">Proceso</a>
+				<!-- Rutas absolutas (/#seccion) para que el menú también funcione desde
+				     otras páginas, como /gracias, donde un ancla suelta no lleva a nada. -->
+				<nav class="hidden md:flex gap-8" aria-label="Secciones del sitio">
+					{enlaces.map((e) => (
+						<a href={e.href} class="text-sm font-medium hover:text-tle-primary transition-colors">{e.texto}</a>
+					))}
 				</nav>
-				<a
-					href="#contacto"
-					class="bg-tle-primary text-tle-black px-6 py-2.5 rounded-sm font-semibold text-sm hover:bg-tle-accent transition-colors"
-				>
-					Cotizar Ahora
-				</a>
+
+				<div class="flex items-center gap-3">
+					<a
+						href="/#contacto"
+						class="bg-tle-primary text-tle-black px-5 sm:px-6 py-2.5 rounded-sm font-semibold text-xs sm:text-sm hover:bg-tle-accent transition-colors"
+					>
+						Cotizar Ahora
+					</a>
+					<!-- Botón de menú para móvil: antes no había forma de navegar bajo 768px. -->
+					<button
+						type="button"
+						id="menu-boton"
+						class="md:hidden p-2 -mr-2 text-tle-black"
+						aria-expanded="false"
+						aria-controls="menu-movil"
+						aria-label="Abrir menú"
+					>
+						<i id="menu-icono" class="ph ph-list text-2xl"></i>
+					</button>
+				</div>
 			</div>
+
+			<!-- Panel móvil -->
+			<nav
+				id="menu-movil"
+				hidden
+				aria-label="Secciones del sitio"
+				class="md:hidden border-t border-gray-100 bg-tle-white"
+			>
+				<ul class="px-4 py-2">
+					{enlaces.map((e) => (
+						<li>
+							<a
+								href={e.href}
+								class="block py-3 text-sm font-medium border-b border-gray-100 last:border-0 hover:text-tle-primary transition-colors"
+							>
+								{e.texto}
+							</a>
+						</li>
+					))}
+				</ul>
+			</nav>
 		</header>
 
 		<main class="pt-20">
 			<slot />
 		</main>
+
+		<Footer />
 
 		<!-- GSAP & ScrollTrigger -->
 		<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -80,6 +129,34 @@ const { title, description } = Astro.props;
 		<!-- Lógica Global -->
 		<script is:inline>
 			document.addEventListener('DOMContentLoaded', () => {
+				// --- Menú móvil ---
+				const menuBoton = document.getElementById('menu-boton');
+				const menuMovil = document.getElementById('menu-movil');
+				const menuIcono = document.getElementById('menu-icono');
+
+				const cerrarMenu = () => {
+					menuMovil.hidden = true;
+					menuBoton.setAttribute('aria-expanded', 'false');
+					menuBoton.setAttribute('aria-label', 'Abrir menú');
+					menuIcono.className = 'ph ph-list text-2xl';
+				};
+
+				menuBoton.addEventListener('click', () => {
+					const abierto = menuMovil.hidden === false;
+					if (abierto) {
+						cerrarMenu();
+					} else {
+						menuMovil.hidden = false;
+						menuBoton.setAttribute('aria-expanded', 'true');
+						menuBoton.setAttribute('aria-label', 'Cerrar menú');
+						menuIcono.className = 'ph ph-x text-2xl';
+					}
+				});
+
+				// Al elegir una sección el panel se cierra solo.
+				menuMovil.querySelectorAll('a').forEach((a) => a.addEventListener('click', cerrarMenu));
+				document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarMenu(); });
+
 				// Header shrink on scroll
 				const header = document.getElementById('main-header');
 				const bar = header.firstElementChild;
@@ -169,7 +246,7 @@ const { title, description } = Astro.props;
 				const heroImg = document.querySelector('[data-parallax]');
 				if (heroImg) {
 					gsap.to(heroImg, {
-						yPercent: 12,
+						yPercent: 6,
 						ease: 'none',
 						scrollTrigger: {
 							trigger: heroImg.closest('section'),

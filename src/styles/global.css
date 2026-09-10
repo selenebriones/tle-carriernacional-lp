@@ -37,3 +37,11 @@
     opacity: 0;
   }
 }
+
+/* El header es fijo (80px, 64px al encoger). Sin este margen, al saltar a un
+   ancla del menú el título de la sección queda escondido debajo del header. */
+@layer base {
+  section[id] {
+    scroll-margin-top: 5.5rem;
+  }
+}
