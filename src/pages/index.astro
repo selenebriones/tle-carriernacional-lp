@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import SeccionCotizacion from '../components/SeccionCotizacion.astro';
 
 /* ============================================================================
    TLE — LP Carrier Nacional. Contenido definitivo del cliente.
@@ -173,13 +174,8 @@ const seguridad = [
 // lleva a /gracias, pero no guarda el lead en ningún lado.
 const FORM_ENDPOINT = import.meta.env.PUBLIC_FORM_ENDPOINT ?? '';
 
-// Turnstile de Cloudflare: gratuito y sin límite de verificaciones.
-// Sin variable de entorno usa la clave de prueba oficial de Cloudflare, que
-// siempre aprueba: sirve para ver el widget en desarrollo, NO para producción.
-// Para producción: crear el widget en dash.cloudflare.com > Turnstile y poner
-// la clave del sitio en .env como PUBLIC_TURNSTILE_SITE_KEY.
-const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '1x00000000000000000000AA';
-const TURNSTILE_ES_PRUEBA = !import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+// Turnstile de Cloudflare se configura dentro de SeccionCotizacion.astro,
+// que es quien pinta el widget (PUBLIC_TURNSTILE_SITE_KEY en .env).
 
 // Reconocimientos. Los logotipos oficiales van en /images/reconocimientos/
 const reconocimientos = [
@@ -444,6 +440,16 @@ const reconocimientos = [
     </div>
   </section>
 
+  <!-- ===================== 6b. COTIZACIÓN (tras cobertura) ===================== -->
+  <SeccionCotizacion
+    anchorId="cotiza-cobertura"
+    sufijo="cobertura"
+    servicios={servicios}
+    titulo="¿Tu ruta está en nuestra red?"
+    copy="Si tu origen y destino aparecen en el mapa, podemos cotizarte. Déjanos los datos de tu operación y un especialista te contacta."
+  />
+
+
 
   <!-- ===================== 7. UNIDADES ===================== -->
   <section id="unidades" class="py-20 bg-tle-white">
@@ -620,146 +626,10 @@ const reconocimientos = [
   </section>
 
 
+
   <!-- ===================== 12. COTIZACIÓN ===================== -->
-  <section id="contacto" class="relative py-24 bg-tle-primary overflow-hidden">
-    <!-- Fondo: la flotilla en escala de grises, tenue bajo una capa del amarillo TLE. -->
-    <img
-      src="/images/bg_contacto.webp"
-      alt=""
-      aria-hidden="true"
-      loading="lazy"
-      width="1426"
-      height="951"
-      class="absolute inset-0 w-full h-full object-cover grayscale opacity-30 pointer-events-none select-none"
-    />
-    <div class="absolute inset-0 bg-tle-primary/55" aria-hidden="true"></div>
+  <SeccionCotizacion anchorId="contacto" sufijo="final" servicios={servicios} />
 
-    <div class="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div data-reveal class="text-center mb-12">
-        <h2 class="text-2xl sm:text-4xl font-display font-extrabold text-tle-black mb-4 uppercase">Solicita una cotización nacional</h2>
-        <p class="text-tle-black/70 text-sm max-w-2xl mx-auto leading-relaxed">
-          Cuéntanos lo necesario para entender tu operación. Un especialista revisará la información
-          y se pondrá en contacto contigo conforme al proceso comercial de TLE.
-        </p>
-      </div>
-
-      <!-- El formulario todavía no envía a ningún destino -->
-      <!-- novalidate: la validación la hace el script para mostrar mensajes en
-           español y con el estilo del sitio, en vez de los globos del navegador. -->
-      <form data-reveal id="form-cotizacion" novalidate class="relative bg-tle-white p-8 sm:p-10 rounded-sm space-y-5 shadow-lg">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <div>
-            <label for="nombre" class="block text-xs font-bold uppercase tracking-wider mb-2 text-tle-black">Nombre y apellido</label>
-            <input id="nombre" name="nombre" type="text" required class="w-full bg-tle-secondary border border-gray-200 px-4 py-3 text-sm rounded-sm focus:border-tle-primary outline-none aria-invalid:border-red-500 aria-invalid:bg-red-50" />
-            <p data-error-de="nombre" hidden class="mt-1.5 text-xs font-semibold text-red-600"></p>
-          </div>
-          <div>
-            <label for="empresa" class="block text-xs font-bold uppercase tracking-wider mb-2 text-tle-black">Empresa</label>
-            <input id="empresa" name="empresa" type="text" required class="w-full bg-tle-secondary border border-gray-200 px-4 py-3 text-sm rounded-sm focus:border-tle-primary outline-none aria-invalid:border-red-500 aria-invalid:bg-red-50" />
-            <p data-error-de="empresa" hidden class="mt-1.5 text-xs font-semibold text-red-600"></p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <div>
-            <label for="correo" class="block text-xs font-bold uppercase tracking-wider mb-2 text-tle-black">Correo corporativo</label>
-            <input id="correo" name="correo" type="email" required autocomplete="email" class="w-full bg-tle-secondary border border-gray-200 px-4 py-3 text-sm rounded-sm focus:border-tle-primary outline-none aria-invalid:border-red-500 aria-invalid:bg-red-50" />
-            <p data-error-de="correo" hidden class="mt-1.5 text-xs font-semibold text-red-600"></p>
-          </div>
-          <div>
-            <label for="telefono" class="block text-xs font-bold uppercase tracking-wider mb-2 text-tle-black">Teléfono</label>
-            <input id="telefono" name="telefono" type="tel" placeholder="10 dígitos" required inputmode="tel" autocomplete="tel" class="w-full bg-tle-secondary border border-gray-200 px-4 py-3 text-sm rounded-sm focus:border-tle-primary outline-none aria-invalid:border-red-500 aria-invalid:bg-red-50" />
-            <p data-error-de="telefono" hidden class="mt-1.5 text-xs font-semibold text-red-600"></p>
-          </div>
-        </div>
-
-        <div>
-          <label for="ruta" class="block text-xs font-bold uppercase tracking-wider mb-2 text-tle-black">Origen y destino</label>
-          <input id="ruta" name="ruta" type="text" placeholder="Ej. Monterrey → Silao" required class="w-full bg-tle-secondary border border-gray-200 px-4 py-3 text-sm rounded-sm focus:border-tle-primary outline-none aria-invalid:border-red-500 aria-invalid:bg-red-50" />
-          <p data-error-de="ruta" hidden class="mt-1.5 text-xs font-semibold text-red-600"></p>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <div>
-            <label for="servicio" class="block text-xs font-bold uppercase tracking-wider mb-2 text-tle-black">Tipo de servicio</label>
-            <select id="servicio" name="servicio" required class="w-full bg-tle-secondary border border-gray-200 px-4 py-3 text-sm rounded-sm focus:border-tle-primary outline-none aria-invalid:border-red-500 aria-invalid:bg-red-50">
-              <option value="" disabled selected>Selecciona una opción</option>
-              {servicios.map((s) => <option>{s.titulo}</option>)}
-            </select>
-            <p data-error-de="servicio" hidden class="mt-1.5 text-xs font-semibold text-red-600"></p>
-          </div>
-          <div>
-            <label for="carga" class="block text-xs font-bold uppercase tracking-wider mb-2 text-tle-black">Tipo de carga</label>
-            <input id="carga" name="carga" type="text" required class="w-full bg-tle-secondary border border-gray-200 px-4 py-3 text-sm rounded-sm focus:border-tle-primary outline-none aria-invalid:border-red-500 aria-invalid:bg-red-50" />
-            <p data-error-de="carga" hidden class="mt-1.5 text-xs font-semibold text-red-600"></p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <div>
-            <label for="frecuencia" class="block text-xs font-bold uppercase tracking-wider mb-2 text-tle-black">Frecuencia</label>
-            <select id="frecuencia" name="frecuencia" required class="w-full bg-tle-secondary border border-gray-200 px-4 py-3 text-sm rounded-sm focus:border-tle-primary outline-none aria-invalid:border-red-500 aria-invalid:bg-red-50">
-              <option value="" disabled selected>Selecciona una opción</option>
-              <option>Semanal</option>
-              <option>Mensual</option>
-            </select>
-            <p data-error-de="frecuencia" hidden class="mt-1.5 text-xs font-semibold text-red-600"></p>
-          </div>
-          <div>
-            <label for="volumen" class="block text-xs font-bold uppercase tracking-wider mb-2 text-tle-black">Volumen aproximado</label>
-            <select id="volumen" name="volumen" required class="w-full bg-tle-secondary border border-gray-200 px-4 py-3 text-sm rounded-sm focus:border-tle-primary outline-none aria-invalid:border-red-500 aria-invalid:bg-red-50">
-              <option value="" disabled selected>Selecciona un rango</option>
-              <option>4 - 10</option>
-              <option>11 - 20</option>
-              <option>21 - 30</option>
-              <option>+30</option>
-            </select>
-            <p data-error-de="volumen" hidden class="mt-1.5 text-xs font-semibold text-red-600"></p>
-          </div>
-        </div>
-
-        <!-- Trampa para bots: un campo que las personas no ven ni pueden enfocar.
-             Si llega con algo escrito, el envío se descarta. -->
-        <div class="sr-only" aria-hidden="true">
-          <label for="sitio-web">No llenar este campo</label>
-          <input id="sitio-web" name="sitio_web" type="text" tabindex="-1" autocomplete="off" />
-        </div>
-        <!-- Marca de tiempo: un formulario enviado en menos de 3 segundos no lo llenó una persona. -->
-        <input type="hidden" name="cargado_en" id="cargado-en" />
-
-        <!-- Procedencia del lead. `origen` se resuelve al construir el sitio; los
-             UTM los llena el script desde la URL de llegada. -->
-        <input type="hidden" name="origen" value={Astro.url.pathname} />
-        <input type="hidden" name="utm_source" />
-        <input type="hidden" name="utm_medium" />
-        <input type="hidden" name="utm_campaign" />
-        <input type="hidden" name="utm_term" />
-        <input type="hidden" name="utm_content" />
-        <input type="hidden" name="gclid" />
-        <input type="hidden" name="fbclid" />
-        <input type="hidden" name="pagina_completa" />
-        <input type="hidden" name="referente" />
-
-        <div class="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-language="es" data-theme="light"></div>
-        {TURNSTILE_ES_PRUEBA && (
-          <p class="text-xs text-tle-accent">
-            Captcha en modo de prueba: falta configurar PUBLIC_TURNSTILE_SITE_KEY.
-          </p>
-        )}
-        {!FORM_ENDPOINT && (
-          <p class="text-xs text-tle-accent">
-            Envío en modo demo: falta configurar PUBLIC_FORM_ENDPOINT. Los datos no se guardan en ningún lado.
-          </p>
-        )}
-
-        <p id="form-error" role="alert" hidden class="text-xs font-semibold text-red-600"></p>
-
-        <button type="submit" id="form-enviar" class="w-full bg-tle-black text-tle-white font-bold py-4 text-sm uppercase tracking-wider hover:bg-tle-accent hover:text-tle-black transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
-          Solicitar
-        </button>
-      </form>
-    </div>
-  </section>
 
 
 
@@ -829,19 +699,17 @@ const reconocimientos = [
 
 <script is:inline define:vars={{ FORM_ENDPOINT }}>
   document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('form-cotizacion');
-    if (!form) return;
-
-    const boton = document.getElementById('form-enviar');
-    const errorGeneral = document.getElementById('form-error');
-    const cargadoEn = document.getElementById('cargado-en');
-    cargadoEn.value = String(Date.now());
+    // La página monta la sección de cotización más de una vez, así que todo
+    // esto se engancha por formulario: nada de getElementById.
+    const formularios = Array.from(document.querySelectorAll('[data-form-cotizacion]'));
+    if (!formularios.length) return;
 
     // --- Procedencia: UTM y clics de anuncios ---
     // Se guardan en sessionStorage porque la persona puede llegar con los UTM,
     // navegar y volver al formulario: en ese momento ya no están en la URL.
     const LLAVES = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','gclid','fbclid'];
     const params = new URLSearchParams(location.search);
+    const procedencia = {};
     LLAVES.forEach((k) => {
       const deLaUrl = params.get(k);
       if (deLaUrl) {
@@ -851,10 +719,8 @@ const reconocimientos = [
       if (!valor) {
         try { valor = sessionStorage.getItem(k); } catch (e) { valor = null; }
       }
-      if (valor && form.elements[k]) form.elements[k].value = valor;
+      if (valor) procedencia[k] = valor;
     });
-    form.elements.pagina_completa.value = location.href;
-    form.elements.referente.value = document.referrer || '';
 
     // --- Validación ---
     const RE_CORREO = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
@@ -877,106 +743,123 @@ const reconocimientos = [
       volumen: (v) => (!v ? 'Elige un rango de volumen.' : ''),
     };
 
-    const pintarError = (campo, mensaje) => {
-      const aviso = form.querySelector(`[data-error-de="${campo.name}"]`);
-      if (mensaje) {
-        campo.setAttribute('aria-invalid', 'true');
-        if (aviso) { aviso.textContent = mensaje; aviso.hidden = false; }
-      } else {
-        campo.removeAttribute('aria-invalid');
-        if (aviso) { aviso.hidden = true; }
-      }
-    };
+    const preparar = (form) => {
+      const boton = form.querySelector('[data-form-enviar]');
+      const errorGeneral = form.querySelector('[data-form-error]');
+      const cargadoEn = form.querySelector('[data-cargado-en]');
+      const captcha = form.querySelector('.cf-turnstile');
+      cargadoEn.value = String(Date.now());
 
-    const validarCampo = (campo) => {
-      const regla = reglas[campo.name];
-      if (!regla) return true;
-      const mensaje = regla(campo.value);
-      pintarError(campo, mensaje);
-      return !mensaje;
-    };
+      Object.keys(procedencia).forEach((k) => {
+        if (form.elements[k]) form.elements[k].value = procedencia[k];
+      });
+      form.elements.pagina_completa.value = location.href;
+      form.elements.referente.value = document.referrer || '';
 
-    // Se valida al salir del campo, y mientras se corrige se limpia el error.
-    Object.keys(reglas).forEach((nombre) => {
-      const campo = form.elements[nombre];
-      if (!campo) return;
-      campo.addEventListener('blur', () => validarCampo(campo));
-      campo.addEventListener('input', () => { if (campo.getAttribute('aria-invalid')) validarCampo(campo); });
-      campo.addEventListener('change', () => validarCampo(campo));
-    });
+      const pintarError = (campo, mensaje) => {
+        const aviso = form.querySelector(`[data-error-de="${campo.name}"]`);
+        if (mensaje) {
+          campo.setAttribute('aria-invalid', 'true');
+          if (aviso) { aviso.textContent = mensaje; aviso.hidden = false; }
+        } else {
+          campo.removeAttribute('aria-invalid');
+          if (aviso) { aviso.hidden = true; }
+        }
+      };
 
-    const validarTodo = () => {
-      let primeroConError = null;
+      const validarCampo = (campo) => {
+        const regla = reglas[campo.name];
+        if (!regla) return true;
+        const mensaje = regla(campo.value);
+        pintarError(campo, mensaje);
+        return !mensaje;
+      };
+
+      // Se valida al salir del campo, y mientras se corrige se limpia el error.
       Object.keys(reglas).forEach((nombre) => {
         const campo = form.elements[nombre];
-        if (campo && !validarCampo(campo) && !primeroConError) primeroConError = campo;
+        if (!campo) return;
+        campo.addEventListener('blur', () => validarCampo(campo));
+        campo.addEventListener('input', () => { if (campo.getAttribute('aria-invalid')) validarCampo(campo); });
+        campo.addEventListener('change', () => validarCampo(campo));
       });
-      return primeroConError;
-    };
 
-    const mostrarError = (msg) => {
-      errorGeneral.textContent = msg;
-      errorGeneral.hidden = false;
-    };
+      const validarTodo = () => {
+        let primeroConError = null;
+        Object.keys(reglas).forEach((nombre) => {
+          const campo = form.elements[nombre];
+          if (campo && !validarCampo(campo) && !primeroConError) primeroConError = campo;
+        });
+        return primeroConError;
+      };
 
-    // --- Envío ---
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      errorGeneral.hidden = true;
+      const mostrarError = (msg) => {
+        errorGeneral.textContent = msg;
+        errorGeneral.hidden = false;
+      };
 
-      // Trampa: si el campo oculto viene lleno, lo llenó un bot.
-      if (form.elements.sitio_web.value) return;
+      // --- Envío ---
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorGeneral.hidden = true;
 
-      // Velocidad: nadie llena nueve campos en menos de tres segundos.
-      if (Date.now() - Number(cargadoEn.value) < 3000) {
-        mostrarError('Tómate un momento para revisar los datos antes de enviar.');
-        return;
-      }
+        // Trampa: si el campo oculto viene lleno, lo llenó un bot.
+        if (form.elements.sitio_web.value) return;
 
-      const conError = validarTodo();
-      if (conError) {
-        mostrarError('Revisa los campos marcados.');
-        conError.focus();
-        conError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
-      }
-
-      const token = form.querySelector('[name="cf-turnstile-response"]');
-      if (!token || !token.value) {
-        mostrarError('Completa la verificación de seguridad para continuar.');
-        return;
-      }
-
-      // El teléfono viaja normalizado a 10 dígitos.
-      const datos = Object.fromEntries(new FormData(form).entries());
-      datos.telefono = soloDigitos(datos.telefono);
-      delete datos.sitio_web;
-      delete datos.cargado_en;
-
-      boton.disabled = true;
-      const textoOriginal = boton.textContent;
-      boton.textContent = 'Enviando…';
-
-      try {
-        if (FORM_ENDPOINT) {
-          const res = await fetch(FORM_ENDPOINT, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(datos),
-          });
-          if (!res.ok) throw new Error(`El servidor respondió ${res.status}`);
-        } else {
-          // Modo demo: sin endpoint no hay a dónde enviar.
-          console.warn('[TLE] PUBLIC_FORM_ENDPOINT sin configurar. Datos que se enviarían:', datos);
+        // Velocidad: nadie llena nueve campos en menos de tres segundos.
+        if (Date.now() - Number(cargadoEn.value) < 3000) {
+          mostrarError('Tómate un momento para revisar los datos antes de enviar.');
+          return;
         }
-        window.location.href = '/gracias';
-      } catch (err) {
-        console.error('[TLE] Falló el envío del formulario:', err);
-        mostrarError('No pudimos enviar tu solicitud. Inténtalo de nuevo o escríbenos por correo.');
-        boton.disabled = false;
-        boton.textContent = textoOriginal;
-        if (window.turnstile) window.turnstile.reset();
-      }
-    });
+
+        const conError = validarTodo();
+        if (conError) {
+          mostrarError('Revisa los campos marcados.');
+          conError.focus();
+          conError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+
+        const token = form.querySelector('[name="cf-turnstile-response"]');
+        if (!token || !token.value) {
+          mostrarError('Completa la verificación de seguridad para continuar.');
+          return;
+        }
+
+        // El teléfono viaja normalizado a 10 dígitos.
+        const datos = Object.fromEntries(new FormData(form).entries());
+        datos.telefono = soloDigitos(datos.telefono);
+        delete datos.sitio_web;
+        delete datos.cargado_en;
+
+        boton.disabled = true;
+        const textoOriginal = boton.textContent;
+        boton.textContent = 'Enviando…';
+
+        try {
+          if (FORM_ENDPOINT) {
+            const res = await fetch(FORM_ENDPOINT, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(datos),
+            });
+            if (!res.ok) throw new Error(`El servidor respondió ${res.status}`);
+          } else {
+            // Modo demo: sin endpoint no hay a dónde enviar.
+            console.warn('[TLE] PUBLIC_FORM_ENDPOINT sin configurar. Datos que se enviarían:', datos);
+          }
+          window.location.href = '/gracias';
+        } catch (err) {
+          console.error('[TLE] Falló el envío del formulario:', err);
+          mostrarError('No pudimos enviar tu solicitud. Inténtalo de nuevo o escríbenos por correo.');
+          boton.disabled = false;
+          boton.textContent = textoOriginal;
+          // Solo se reinicia el captcha de este formulario, no el de la otra sección.
+          if (window.turnstile && captcha) window.turnstile.reset(captcha);
+        }
+      });
+    };
+
+    formularios.forEach(preparar);
   });
 </script>

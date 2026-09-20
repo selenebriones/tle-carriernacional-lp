@@ -1,0 +1,188 @@
+---
+/* ============================================================================
+   Sección de cotización, reutilizable.
+
+   La página la monta más de una vez, así que nada aquí puede depender de un id
+   fijo: los ids de campo se sufijan con `sufijo` y el script del sitio engancha
+   por atributos `data-*`, no por `getElementById`.
+   ========================================================================== */
+
+interface Props {
+  /** id del <section>, el que usan los enlaces ancla. */
+  anchorId: string;
+  /** Sufijo único para los ids de los campos (label `for` ↔ input `id`). */
+  sufijo: string;
+  /** Catálogo de servicios para el <select>. */
+  servicios: { titulo: string }[];
+  /** El <h2> de la sección. */
+  titulo?: string;
+  /** Párrafo bajo el título. */
+  copy?: string;
+}
+
+const {
+  anchorId,
+  sufijo,
+  servicios,
+  titulo = 'Solicita una cotización nacional',
+  copy = 'Cuéntanos lo necesario para entender tu operación. Un especialista revisará la información y se pondrá en contacto contigo conforme al proceso comercial de TLE.',
+} = Astro.props;
+
+const FORM_ENDPOINT = import.meta.env.PUBLIC_FORM_ENDPOINT ?? '';
+const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '1x00000000000000000000AA';
+const TURNSTILE_ES_PRUEBA = !import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+
+const campo = 'w-full bg-tle-secondary border border-gray-200 px-4 py-3 text-sm rounded-sm focus:border-tle-primary outline-none aria-invalid:border-red-500 aria-invalid:bg-red-50';
+const etiqueta = 'block text-xs font-bold uppercase tracking-wider mb-2 text-tle-black';
+const aviso = 'mt-1.5 text-xs font-semibold text-red-600';
+const id = (n: string) => `${n}-${sufijo}`;
+---
+
+<section id={anchorId} class="relative py-24 bg-tle-primary overflow-hidden">
+  <!-- Fondo: la flotilla en escala de grises, tenue bajo una capa del amarillo TLE. -->
+  <img
+    src="/images/bg_contacto.webp"
+    alt=""
+    aria-hidden="true"
+    loading="lazy"
+    width="1426"
+    height="951"
+    class="absolute inset-0 w-full h-full object-cover grayscale opacity-30 pointer-events-none select-none"
+  />
+  <div class="absolute inset-0 bg-tle-primary/55" aria-hidden="true"></div>
+
+  <div class="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div data-reveal class="text-center mb-12">
+      <h2 class="text-2xl sm:text-4xl font-display font-extrabold text-tle-black mb-4 uppercase">{titulo}</h2>
+      <p class="text-tle-black/70 text-sm max-w-2xl mx-auto leading-relaxed">{copy}</p>
+    </div>
+
+    <!-- novalidate: la validación la hace el script para mostrar mensajes en
+         español y con el estilo del sitio, en vez de los globos del navegador. -->
+    <form
+      data-reveal
+      data-form-cotizacion
+      data-form-origen={sufijo}
+      id={id('form-cotizacion')}
+      novalidate
+      class="relative bg-tle-white p-8 sm:p-10 rounded-sm space-y-5 shadow-lg"
+    >
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <label for={id('nombre')} class={etiqueta}>Nombre y apellido</label>
+          <input id={id('nombre')} name="nombre" type="text" required class={campo} />
+          <p data-error-de="nombre" hidden class={aviso}></p>
+        </div>
+        <div>
+          <label for={id('empresa')} class={etiqueta}>Empresa</label>
+          <input id={id('empresa')} name="empresa" type="text" required class={campo} />
+          <p data-error-de="empresa" hidden class={aviso}></p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <label for={id('correo')} class={etiqueta}>Correo corporativo</label>
+          <input id={id('correo')} name="correo" type="email" required autocomplete="email" class={campo} />
+          <p data-error-de="correo" hidden class={aviso}></p>
+        </div>
+        <div>
+          <label for={id('telefono')} class={etiqueta}>Teléfono</label>
+          <input id={id('telefono')} name="telefono" type="tel" placeholder="10 dígitos" required inputmode="tel" autocomplete="tel" class={campo} />
+          <p data-error-de="telefono" hidden class={aviso}></p>
+        </div>
+      </div>
+
+      <div>
+        <label for={id('ruta')} class={etiqueta}>Origen y destino</label>
+        <input id={id('ruta')} name="ruta" type="text" placeholder="Ej. Monterrey → Silao" required class={campo} />
+        <p data-error-de="ruta" hidden class={aviso}></p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <label for={id('servicio')} class={etiqueta}>Tipo de servicio</label>
+          <select id={id('servicio')} name="servicio" required class={campo}>
+            <option value="" disabled selected>Selecciona una opción</option>
+            {servicios.map((s) => <option>{s.titulo}</option>)}
+          </select>
+          <p data-error-de="servicio" hidden class={aviso}></p>
+        </div>
+        <div>
+          <label for={id('carga')} class={etiqueta}>Tipo de carga</label>
+          <input id={id('carga')} name="carga" type="text" required class={campo} />
+          <p data-error-de="carga" hidden class={aviso}></p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <label for={id('frecuencia')} class={etiqueta}>Frecuencia</label>
+          <select id={id('frecuencia')} name="frecuencia" required class={campo}>
+            <option value="" disabled selected>Selecciona una opción</option>
+            <option>Semanal</option>
+            <option>Mensual</option>
+          </select>
+          <p data-error-de="frecuencia" hidden class={aviso}></p>
+        </div>
+        <div>
+          <label for={id('volumen')} class={etiqueta}>Volumen aproximado</label>
+          <select id={id('volumen')} name="volumen" required class={campo}>
+            <option value="" disabled selected>Selecciona un rango</option>
+            <option>4 - 10</option>
+            <option>11 - 20</option>
+            <option>21 - 30</option>
+            <option>+30</option>
+          </select>
+          <p data-error-de="volumen" hidden class={aviso}></p>
+        </div>
+      </div>
+
+      <!-- Trampa para bots: un campo que las personas no ven ni pueden enfocar.
+           Si llega con algo escrito, el envío se descarta. -->
+      <div class="sr-only" aria-hidden="true">
+        <label for={id('sitio-web')}>No llenar este campo</label>
+        <input id={id('sitio-web')} name="sitio_web" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+      <!-- Marca de tiempo: un formulario enviado en menos de 3 segundos no lo llenó una persona. -->
+      <input type="hidden" name="cargado_en" data-cargado-en />
+
+      <!-- Procedencia del lead. `origen` se resuelve al construir el sitio; los
+           UTM los llena el script desde la URL de llegada. `formulario` distingue
+           cuál de las dos secciones convirtió. -->
+      <input type="hidden" name="origen" value={Astro.url.pathname} />
+      <input type="hidden" name="formulario" value={sufijo} />
+      <input type="hidden" name="utm_source" />
+      <input type="hidden" name="utm_medium" />
+      <input type="hidden" name="utm_campaign" />
+      <input type="hidden" name="utm_term" />
+      <input type="hidden" name="utm_content" />
+      <input type="hidden" name="gclid" />
+      <input type="hidden" name="fbclid" />
+      <input type="hidden" name="pagina_completa" />
+      <input type="hidden" name="referente" />
+
+      <div class="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-language="es" data-theme="light"></div>
+      {TURNSTILE_ES_PRUEBA && (
+        <p class="text-xs text-tle-accent">
+          Captcha en modo de prueba: falta configurar PUBLIC_TURNSTILE_SITE_KEY.
+        </p>
+      )}
+      {!FORM_ENDPOINT && (
+        <p class="text-xs text-tle-accent">
+          Envío en modo demo: falta configurar PUBLIC_FORM_ENDPOINT. Los datos no se guardan en ningún lado.
+        </p>
+      )}
+
+      <p data-form-error role="alert" hidden class="text-xs font-semibold text-red-600"></p>
+
+      <button
+        type="submit"
+        data-form-enviar
+        class="w-full bg-tle-black text-tle-white font-bold py-4 text-sm uppercase tracking-wider hover:bg-tle-accent hover:text-tle-black transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+      >
+        Solicitar
+      </button>
+    </form>
+  </div>
+</section>
