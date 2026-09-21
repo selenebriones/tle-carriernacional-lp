@@ -10,6 +10,7 @@ import type { APIRoute } from 'astro';
 
 const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 const BREVO_EMAIL_URL = 'https://api.brevo.com/v3/smtp/email';
+const BREVO_SENDER_NAME = 'TLE - Carrier Nacional';
 
 const CAMPOS_REQUERIDOS = [
   'nombre', 'empresa', 'correo', 'telefono', 'ruta', 'servicio', 'carga', 'frecuencia', 'volumen',
@@ -56,11 +57,10 @@ export const POST: APIRoute = async ({ request }) => {
   const TURNSTILE_SECRET_KEY = import.meta.env.TURNSTILE_SECRET_KEY;
   const BREVO_API_KEY = import.meta.env.BREVO_API_KEY;
   const FORM_DESTINATARIO = import.meta.env.FORM_DESTINATARIO;
-  // Remitente en Brevo: por defecto el mismo buzón que recibe el lead, pero
-  // debe ser una dirección o dominio validado en esa cuenta de Brevo, así
-  // que se puede apuntar a otro remitente sin tocar código.
-  const BREVO_REMITENTE_EMAIL = import.meta.env.BREVO_REMITENTE_EMAIL || FORM_DESTINATARIO;
-  const BREVO_REMITENTE_NOMBRE = import.meta.env.BREVO_REMITENTE_NOMBRE || 'Formulario TLE Carrier Nacional';
+  // Remitente en Brevo: debe ser una dirección o dominio validado en esa
+  // cuenta de Brevo, así que se puede apuntar a otro remitente sin tocar
+  // código si algún día cambia.
+  const BREVO_SENDER_EMAIL = import.meta.env.BREVO_SENDER_EMAIL || 'noreply@futurite.info';
 
   if (!TURNSTILE_SECRET_KEY || !BREVO_API_KEY || !FORM_DESTINATARIO) {
     console.error('[api/cotizacion] Falta configurar TURNSTILE_SECRET_KEY, BREVO_API_KEY o FORM_DESTINATARIO.');
@@ -120,11 +120,17 @@ export const POST: APIRoute = async ({ request }) => {
       'api-key': BREVO_API_KEY,
     },
     body: JSON.stringify({
-      sender: { name: BREVO_REMITENTE_NOMBRE, email: BREVO_REMITENTE_EMAIL },
+      sender: { name: BREVO_SENDER_NAME, email: BREVO_SENDER_EMAIL },
       to: [{ email: FORM_DESTINATARIO }],
       replyTo: { email: correo, name: nombre },
-      subject: `TLE Carrier Nacional — Nueva cotización — ${empresa}`,
-      htmlContent: `<table style="border-collapse:collapse;font-family:sans-serif;font-size:14px;">${filas}</table>`,
+      subject: `Nueva solicitud de cotización nacional — ${empresa}`,
+      htmlContent: `
+        <div style="font-family: Arial, Helvetica, sans-serif;">
+          <h1 style="font-size:28px;font-weight:800;color:#111111;margin:0 0 12px;">Nueva solicitud de cotización nacional</h1>
+          <p style="font-size:15px;color:#333333;margin:0 0 24px;">Recibida desde la landing page de Carrier Nacional (TLE).</p>
+          <table style="border-collapse:collapse;font-size:14px;">${filas}</table>
+        </div>
+      `,
     }),
   });
 
