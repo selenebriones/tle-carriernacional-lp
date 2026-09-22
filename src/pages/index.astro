@@ -168,15 +168,6 @@ const seguridad = [
   },
 ];
 
-// Destino del envío. Cuando exista el endpoint de Brevo (o el intermediario
-// que valide el captcha), se define en .env como PUBLIC_FORM_ENDPOINT.
-// Sin él el formulario funciona en modo demo: valida, registra en consola y
-// lleva a /gracias, pero no guarda el lead en ningún lado.
-const FORM_ENDPOINT = import.meta.env.PUBLIC_FORM_ENDPOINT ?? '';
-
-// Turnstile de Cloudflare se configura dentro de SeccionCotizacion.astro,
-// que es quien pinta el widget (PUBLIC_TURNSTILE_SITE_KEY en .env).
-
 // Reconocimientos. Los logotipos oficiales van en /images/reconocimientos/
 const reconocimientos = [
   { anios: '2025, 2024, 2019 & 2018', premio: 'Outstanding Performance Mexico Truckload', logo: '/images/stelantis.webp', marca: 'Stellantis' },
@@ -441,7 +432,6 @@ const reconocimientos = [
   <SeccionCotizacion
     anchorId="cotiza-cobertura"
     sufijo="cobertura"
-    servicios={servicios}
     titulo="¿Tu ruta está en nuestra red?"
     copy="Si tu origen y destino aparecen en el mapa, podemos cotizarte. Déjanos los datos de tu operación y un especialista te contacta."
   />
@@ -625,7 +615,7 @@ const reconocimientos = [
 
 
   <!-- ===================== 12. COTIZACIÓN ===================== -->
-  <SeccionCotizacion anchorId="contacto" sufijo="final" servicios={servicios} />
+  <SeccionCotizacion anchorId="contacto" sufijo="final" />
 
 
 
@@ -688,175 +678,5 @@ const reconocimientos = [
         tabs[siguiente].focus();
       });
     });
-  });
-</script>
-
-<!-- Turnstile de Cloudflare -->
-<script is:inline async defer src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
-
-<script is:inline define:vars={{ FORM_ENDPOINT }}>
-  document.addEventListener('DOMContentLoaded', () => {
-    // La página monta la sección de cotización más de una vez, así que todo
-    // esto se engancha por formulario: nada de getElementById.
-    const formularios = Array.from(document.querySelectorAll('[data-form-cotizacion]'));
-    if (!formularios.length) return;
-
-    // --- Procedencia: UTM y clics de anuncios ---
-    // Se guardan en sessionStorage porque la persona puede llegar con los UTM,
-    // navegar y volver al formulario: en ese momento ya no están en la URL.
-    const LLAVES = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','gclid','fbclid'];
-    const params = new URLSearchParams(location.search);
-    const procedencia = {};
-    LLAVES.forEach((k) => {
-      const deLaUrl = params.get(k);
-      if (deLaUrl) {
-        try { sessionStorage.setItem(k, deLaUrl); } catch (e) { /* modo privado */ }
-      }
-      let valor = deLaUrl;
-      if (!valor) {
-        try { valor = sessionStorage.getItem(k); } catch (e) { valor = null; }
-      }
-      if (valor) procedencia[k] = valor;
-    });
-
-    // --- Validación ---
-    const RE_CORREO = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
-    const soloDigitos = (v) => v.replace(/\D/g, '');
-
-    const reglas = {
-      nombre: (v) => (v.trim().length < 3 ? 'Escribe tu nombre y apellido.' : ''),
-      empresa: (v) => (v.trim().length < 2 ? 'Escribe el nombre de tu empresa.' : ''),
-      correo: (v) => (!RE_CORREO.test(v.trim()) ? 'Escribe un correo válido, por ejemplo nombre@empresa.com.' : ''),
-      telefono: (v) => {
-        const d = soloDigitos(v);
-        if (d.length === 0) return 'Escribe tu teléfono.';
-        if (d.length !== 10) return 'El teléfono debe tener 10 dígitos.';
-        return '';
-      },
-      ruta: (v) => (v.trim().length < 4 ? 'Indica el origen y el destino.' : ''),
-      servicio: (v) => (!v ? 'Elige un tipo de servicio.' : ''),
-      carga: (v) => (v.trim().length < 2 ? 'Indica el tipo de carga.' : ''),
-      frecuencia: (v) => (!v ? 'Elige una frecuencia.' : ''),
-      volumen: (v) => (!v ? 'Elige un rango de volumen.' : ''),
-    };
-
-    const preparar = (form) => {
-      const boton = form.querySelector('[data-form-enviar]');
-      const errorGeneral = form.querySelector('[data-form-error]');
-      const cargadoEn = form.querySelector('[data-cargado-en]');
-      const captcha = form.querySelector('.cf-turnstile');
-      cargadoEn.value = String(Date.now());
-
-      Object.keys(procedencia).forEach((k) => {
-        if (form.elements[k]) form.elements[k].value = procedencia[k];
-      });
-      form.elements.pagina_completa.value = location.href;
-      form.elements.referente.value = document.referrer || '';
-
-      const pintarError = (campo, mensaje) => {
-        const aviso = form.querySelector(`[data-error-de="${campo.name}"]`);
-        if (mensaje) {
-          campo.setAttribute('aria-invalid', 'true');
-          if (aviso) { aviso.textContent = mensaje; aviso.hidden = false; }
-        } else {
-          campo.removeAttribute('aria-invalid');
-          if (aviso) { aviso.hidden = true; }
-        }
-      };
-
-      const validarCampo = (campo) => {
-        const regla = reglas[campo.name];
-        if (!regla) return true;
-        const mensaje = regla(campo.value);
-        pintarError(campo, mensaje);
-        return !mensaje;
-      };
-
-      // Se valida al salir del campo, y mientras se corrige se limpia el error.
-      Object.keys(reglas).forEach((nombre) => {
-        const campo = form.elements[nombre];
-        if (!campo) return;
-        campo.addEventListener('blur', () => validarCampo(campo));
-        campo.addEventListener('input', () => { if (campo.getAttribute('aria-invalid')) validarCampo(campo); });
-        campo.addEventListener('change', () => validarCampo(campo));
-      });
-
-      const validarTodo = () => {
-        let primeroConError = null;
-        Object.keys(reglas).forEach((nombre) => {
-          const campo = form.elements[nombre];
-          if (campo && !validarCampo(campo) && !primeroConError) primeroConError = campo;
-        });
-        return primeroConError;
-      };
-
-      const mostrarError = (msg) => {
-        errorGeneral.textContent = msg;
-        errorGeneral.hidden = false;
-      };
-
-      // --- Envío ---
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        errorGeneral.hidden = true;
-
-        // Trampa: si el campo oculto viene lleno, lo llenó un bot.
-        if (form.elements.sitio_web.value) return;
-
-        // Velocidad: nadie llena nueve campos en menos de tres segundos.
-        if (Date.now() - Number(cargadoEn.value) < 3000) {
-          mostrarError('Tómate un momento para revisar los datos antes de enviar.');
-          return;
-        }
-
-        const conError = validarTodo();
-        if (conError) {
-          mostrarError('Revisa los campos marcados.');
-          conError.focus();
-          conError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          return;
-        }
-
-        const token = form.querySelector('[name="cf-turnstile-response"]');
-        if (!token || !token.value) {
-          mostrarError('Completa la verificación de seguridad para continuar.');
-          return;
-        }
-
-        // El teléfono viaja normalizado a 10 dígitos.
-        const datos = Object.fromEntries(new FormData(form).entries());
-        datos.telefono = soloDigitos(datos.telefono);
-        delete datos.sitio_web;
-        delete datos.cargado_en;
-
-        boton.disabled = true;
-        const textoOriginal = boton.textContent;
-        boton.textContent = 'Enviando…';
-
-        try {
-          if (FORM_ENDPOINT) {
-            const res = await fetch(FORM_ENDPOINT, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(datos),
-            });
-            if (!res.ok) throw new Error(`El servidor respondió ${res.status}`);
-          } else {
-            // Modo demo: sin endpoint no hay a dónde enviar.
-            console.warn('[TLE] PUBLIC_FORM_ENDPOINT sin configurar. Datos que se enviarían:', datos);
-          }
-          window.location.href = '/gracias';
-        } catch (err) {
-          console.error('[TLE] Falló el envío del formulario:', err);
-          mostrarError('No pudimos enviar tu solicitud. Inténtalo de nuevo o escríbenos por correo.');
-          boton.disabled = false;
-          boton.textContent = textoOriginal;
-          // Solo se reinicia el captcha de este formulario, no el de la otra sección.
-          if (window.turnstile && captcha) window.turnstile.reset(captcha);
-        }
-      });
-    };
-
-    formularios.forEach(preparar);
   });
 </script>
