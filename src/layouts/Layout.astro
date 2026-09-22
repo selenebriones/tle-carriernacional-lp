@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import Footer from '../components/Footer.astro';
+import { getDict } from '../i18n';
 
 interface Props {
 	title: string;
@@ -11,16 +12,19 @@ interface Props {
 
 const { title, description, noindex = false } = Astro.props;
 
-const enlaces = [
-	{ href: '/#servicios', texto: 'Servicios' },
-	{ href: '/#cobertura', texto: 'Cobertura' },
-	{ href: '/#unidades', texto: 'Unidades' },
-	{ href: '/#proceso', texto: 'Proceso' },
-];
+const lang = Astro.currentLocale ?? 'es';
+const t = getDict(lang).header;
+
+// Enlace al mismo path en el otro idioma: quita/agrega el prefijo /en.
+const { pathname } = Astro.url;
+const pathSinPrefijo = pathname.replace(/^\/en(\/|$)/, '/');
+const switchHref = lang === 'es'
+	? `/en${pathSinPrefijo === '/' ? '' : pathSinPrefijo}`
+	: pathSinPrefijo;
 ---
 
 <!doctype html>
-<html lang="es" class="scroll-smooth">
+<html lang={lang} class="scroll-smooth">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="description" content={description} />
@@ -60,23 +64,30 @@ const enlaces = [
 			id="main-header"
 		>
 			<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between transition-all duration-300">
-				<a href="/" class="shrink-0" aria-label="TLE — inicio">
+				<a href={lang === 'en' ? '/en' : '/'} class="shrink-0" aria-label={t.ariaInicio}>
 					<img src="/images/tle-logo.webp" alt="TLE" width="350" height="150" class="h-11 w-auto" />
 				</a>
 				<!-- Rutas absolutas (/#seccion) para que el menú también funcione desde
 				     otras páginas, como /gracias, donde un ancla suelta no lleva a nada. -->
-				<nav class="hidden md:flex gap-8" aria-label="Secciones del sitio">
-					{enlaces.map((e) => (
+				<nav class="hidden md:flex gap-8" aria-label={t.ariaSecciones}>
+					{t.enlaces.map((e) => (
 						<a href={e.href} class="text-sm font-medium hover:text-tle-primary transition-colors">{e.texto}</a>
 					))}
 				</nav>
 
 				<div class="flex items-center gap-3">
 					<a
-						href="/#contacto"
+						href={switchHref}
+						class="border border-gray-300 text-tle-black text-xs font-bold px-3 py-1.5 rounded-full hover:bg-gray-100 hover:border-gray-400 transition-colors"
+						aria-label={t.switchAria}
+					>
+						{t.switchLabel}
+					</a>
+					<a
+						href={`${lang === 'en' ? '/en' : ''}/#contacto`}
 						class="bg-tle-primary text-tle-black px-5 sm:px-6 py-2.5 rounded-sm font-semibold text-xs sm:text-sm hover:bg-tle-accent transition-colors"
 					>
-						Cotizar Ahora
+						{t.cta}
 					</a>
 					<!-- Botón de menú para móvil: antes no había forma de navegar bajo 768px. -->
 					<button
@@ -85,7 +96,9 @@ const enlaces = [
 						class="md:hidden p-2 -mr-2 text-tle-black"
 						aria-expanded="false"
 						aria-controls="menu-movil"
-						aria-label="Abrir menú"
+						aria-label={t.ariaAbrirMenu}
+						data-abrir-menu-label={t.ariaAbrirMenu}
+						data-cerrar-menu-label={t.ariaCerrarMenu}
 					>
 						<i id="menu-icono" class="ph ph-list text-2xl"></i>
 					</button>
@@ -96,11 +109,11 @@ const enlaces = [
 			<nav
 				id="menu-movil"
 				hidden
-				aria-label="Secciones del sitio"
+				aria-label={t.ariaSecciones}
 				class="md:hidden border-t border-gray-100 bg-tle-white"
 			>
 				<ul class="px-4 py-2">
-					{enlaces.map((e) => (
+					{t.enlaces.map((e) => (
 						<li>
 							<a
 								href={e.href}
@@ -140,7 +153,7 @@ const enlaces = [
 				const cerrarMenu = () => {
 					menuMovil.hidden = true;
 					menuBoton.setAttribute('aria-expanded', 'false');
-					menuBoton.setAttribute('aria-label', 'Abrir menú');
+					menuBoton.setAttribute('aria-label', menuBoton.dataset.abrirMenuLabel);
 					menuIcono.className = 'ph ph-list text-2xl';
 				};
 
@@ -151,7 +164,7 @@ const enlaces = [
 					} else {
 						menuMovil.hidden = false;
 						menuBoton.setAttribute('aria-expanded', 'true');
-						menuBoton.setAttribute('aria-label', 'Cerrar menú');
+						menuBoton.setAttribute('aria-label', menuBoton.dataset.cerrarMenuLabel);
 						menuIcono.className = 'ph ph-x text-2xl';
 					}
 				});

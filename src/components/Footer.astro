@@ -3,6 +3,10 @@
  * Cierre del sitio. Vive en el Layout para que todas las páginas lo compartan
  * y el claim no quede duplicado en dos archivos.
  */
+import { getDict } from '../i18n';
+
+const lang = Astro.currentLocale ?? 'es';
+const t = getDict(lang).footer;
 ---
 
 <footer class="bg-tle-black text-tle-white py-16">
@@ -10,14 +14,13 @@
     <!-- Versión sobre fondo oscuro: placa amarilla con letras negras -->
     <img src="/images/tle-logo-footer.png" alt="TLE" width="140" height="80" loading="lazy" class="h-12 w-auto mx-auto mb-8" />
     <h2 data-reveal class="text-xl sm:text-3xl font-display font-extrabold text-tle-primary mb-6 uppercase max-w-3xl mx-auto leading-tight">
-      Mantén tu operación bajo control con una solución logística a tu medida
+      {t.h2}
     </h2>
     <p class="text-sm text-gray-300 max-w-2xl mx-auto leading-relaxed">
-      Suma la capacidad de flotilla propia, seguridad certificada y seguimiento en tiempo real
-      a tus traslados nacionales.
+      {t.p}
     </p>
     <p class="text-xs text-gray-500 mt-10">
-      © 2026 TLE Transportes y Logística Integrales. Todos los derechos reservados.
+      {t.copyright}
     </p>
   </div>
 </footer>
