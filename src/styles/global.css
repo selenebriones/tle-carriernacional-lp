@@ -11,6 +11,8 @@
   /* Tipografías Modernas de Google Fonts */
   --font-sans: 'Inter', sans-serif;
   --font-display: 'Syne', sans-serif;
+  /* Alternativa gratuita a Tahoma Black para el H1 del hero (identidad de marca) */
+  --font-hero: 'Archivo', sans-serif;
 }
 
 @layer base {

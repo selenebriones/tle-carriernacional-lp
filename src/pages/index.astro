@@ -183,9 +183,6 @@ const reconocimientos = [
   { anios: '2025, 2023 & 2018', premio: 'GM Supplier of the Year', logo: '/images/logo_gm.png', marca: 'General Motors' },
   { anios: '11°', premio: 'Carrier Excellence Awards AAA Category', logo: '/images/penske.webp', marca: 'Penske' },
   { anios: '2025', premio: 'Recognition for Shared Excellence', logo: '/images/dsv_logo.webp', marca: 'DSV' },
-  // Logo de Mazda oculto a pedido del cliente. El archivo sigue en
-  // public/images/logo_mazda.webp: basta devolver el campo para mostrarlo.
-  { anios: '2023, 2022, 2018 & 2017', premio: 'Best Quality and Co-creation Award' },
   { anios: '2021', premio: 'Ever Better and AAA Customer Award', logo: '/images/ryder.webp', marca: 'Ryder' },
   { anios: '2020', premio: 'Best Carrier Award', logo: '/images/constellation.webp', marca: 'Constellation Brands' },
   { anios: '2018', premio: 'Golden Carrier', logo: '/images/maersk.webp', marca: 'Maersk' },
@@ -201,8 +198,8 @@ const reconocimientos = [
   <section class="relative w-full min-h-[80vh] flex items-center bg-tle-black text-tle-white overflow-hidden">
     <!-- Degradado: opaco a la izquierda (donde va el texto) y transparente a la derecha,
          para no tapar el tractocamión. El segundo capa el borde inferior en móvil. -->
-    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/25 z-10"></div>
-    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent z-10"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent z-10"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent z-10"></div>
     <img
       src="/images/hero.webp"
       alt="Tractocamión TLE con plataforma en patio de maniobras"
@@ -210,14 +207,14 @@ const reconocimientos = [
       fetchpriority="high"
       width="1456"
       height="971"
-      class="absolute inset-x-0 -top-[10%] w-full h-[120%] object-cover object-center opacity-70 z-0"
+      class="absolute inset-x-0 -top-[10%] w-full h-[120%] object-cover object-center z-0"
     />
 
     <div class="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 w-full">
       <span data-hero-anim class="inline-block bg-tle-primary text-tle-black text-xs font-bold uppercase tracking-[0.2em] px-3 py-1 mb-6">
         Carrier Nacional
       </span>
-      <h1 data-hero-anim class="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold leading-[1.08] mb-6 max-w-4xl uppercase">
+      <h1 data-hero-anim class="text-4xl sm:text-5xl lg:text-6xl font-hero font-black leading-[1.08] mb-6 max-w-4xl uppercase">
         Tu operación nacional, diseñada para avanzar con <span class="text-tle-primary">certeza</span>
       </h1>
       <p data-hero-anim class="text-gray-300 text-base sm:text-lg max-w-3xl mb-4 font-light leading-relaxed">
@@ -516,7 +513,7 @@ const reconocimientos = [
       <div data-reveal-stagger class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-y-10 gap-x-4">
         {proceso.map((p, i) => (
           <div class="relative flex flex-col items-center text-center px-2">
-            <div class="w-16 h-16 rounded-full bg-tle-primary text-tle-black font-display font-extrabold text-xl flex items-center justify-center mb-5 relative z-10">
+            <div class="w-16 h-16 rounded-full bg-tle-primary text-tle-black font-hero font-black text-xl flex items-center justify-center mb-5 relative z-10">
               {p.n}
             </div>
             {/* Conector hacia el siguiente paso: solo entre tarjetas de la misma fila */}
