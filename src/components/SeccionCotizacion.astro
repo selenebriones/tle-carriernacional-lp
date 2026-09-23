@@ -34,9 +34,13 @@ const {
   copy = t.copy,
 } = Astro.props;
 
-// Id real del formulario en LeadConnector: no cambia entre instancias, es el
-// mismo formulario embebido dos veces en la página.
-const CRM_FORM_ID = 'IjKoqvBNilZMS77Dw4A1';
+// Formulario real en LeadConnector, uno por idioma. No cambia entre
+// instancias: es el mismo formulario embebido dos veces en la página.
+const CRM_FORMS = {
+  es: { id: 'IjKoqvBNilZMS77Dw4A1', nombre: 'Form_Landing TLE' },
+  en: { id: 'Bo4A65ufceEQf2GV0liY', nombre: 'Form_Landing TLE - EN' },
+} as const;
+const { id: CRM_FORM_ID, nombre: CRM_FORM_NAME } = lang === 'en' ? CRM_FORMS.en : CRM_FORMS.es;
 const iframeId = `inline-${CRM_FORM_ID}-${sufijo}`;
 ---
 
@@ -71,13 +75,13 @@ const iframeId = `inline-${CRM_FORM_ID}-${sufijo}`;
         data-activation-value=""
         data-deactivation-type="neverDeactivate"
         data-deactivation-value=""
-        data-form-name="Form_Landing TLE"
+        data-form-name={CRM_FORM_NAME}
         data-height="884"
         data-layout-iframe-id={iframeId}
         data-form-id={CRM_FORM_ID}
         data-cookie-consent="true"
         data-cookie-consent-provider="auto"
-        title={`Form_Landing TLE — ${sufijo}`}
+        title={`${CRM_FORM_NAME} — ${sufijo}`}
       ></iframe>
     </div>
   </div>
