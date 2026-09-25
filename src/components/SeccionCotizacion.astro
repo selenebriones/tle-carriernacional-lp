@@ -11,7 +11,7 @@
    /js/form_embed.js (usa el id para saber a cuál mensaje responder).
    ========================================================================== */
 
-import { getDict } from '../i18n';
+import { getDict, ruta } from '../i18n';
 
 interface Props {
   /** id del <section>, el que usan los enlaces ancla. */
@@ -47,7 +47,7 @@ const iframeId = `inline-${CRM_FORM_ID}-${sufijo}`;
 <section id={anchorId} class="relative py-24 bg-tle-primary overflow-hidden">
   <!-- Fondo: la flotilla en escala de grises, tenue bajo una capa del amarillo TLE. -->
   <img
-    src="/images/bg_contacto.webp"
+    src={ruta('/images/bg_contacto.webp')}
     alt=""
     aria-hidden="true"
     loading="lazy"

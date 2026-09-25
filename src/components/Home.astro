@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import SeccionCotizacion from './SeccionCotizacion.astro';
-import { getDict } from '../i18n';
+import { getDict, ruta } from '../i18n';
 
 /* ============================================================================
    TLE — LP Carrier Nacional. Contenido definitivo del cliente.
@@ -22,7 +22,7 @@ const t = getDict(lang);
     <div class="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent z-10"></div>
     <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent z-10"></div>
     <img
-      src="/images/hero.webp"
+      src={ruta('/images/hero.webp')}
       alt={t.hero.imgAlt}
       data-parallax
       fetchpriority="high"
@@ -66,7 +66,7 @@ const t = getDict(lang);
         {t.certificaciones.items.map((c) => (
           <div class="flex flex-col items-center">
             <div class="h-24 flex items-center justify-center mb-4">
-              <img src={c.img} alt={c.nombre} width="240" height="240" loading="lazy" class={`${c.alto} w-auto object-contain`} />
+              <img src={ruta(c.img)} alt={c.nombre} width="240" height="240" loading="lazy" class={`${c.alto} w-auto object-contain`} />
             </div>
             <span class="text-sm font-bold text-tle-black">{c.nombre}</span>
           </div>
@@ -80,7 +80,7 @@ const t = getDict(lang);
   <section class="relative py-20 bg-tle-secondary overflow-hidden">
     <!-- Fondo: la flotilla en escala de grises, muy tenue para no competir con el texto. -->
     <img
-      src="/images/bg_respaldo.webp"
+      src={ruta('/images/bg_respaldo.webp')}
       alt=""
       aria-hidden="true"
       loading="lazy"
@@ -169,7 +169,7 @@ const t = getDict(lang);
           <article class="group relative overflow-hidden rounded-sm border-t-2 border-tle-primary min-h-[420px] flex flex-col justify-end w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
             {/* Fondo: la imagen se aleja del texto con un degradado para mantener el contraste */}
             <img
-              src={s.img}
+              src={ruta(s.img)}
               alt=""
               aria-hidden="true"
               loading="lazy"
@@ -212,7 +212,7 @@ const t = getDict(lang);
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <div data-reveal class="flex flex-col items-center">
           <img
-            src="/images/mapa_tle_nacional.webp"
+            src={ruta('/images/mapa_tle_nacional.webp')}
             alt={t.cobertura.mapaAlt}
             width="650"
             height="456"
@@ -307,7 +307,7 @@ const t = getDict(lang);
               hidden={i !== 0}
               class="absolute inset-0 m-0"
             >
-              <img src={u.img} alt={u.alt} loading="lazy" class="absolute inset-0 w-full h-full object-cover" />
+              <img src={ruta(u.img)} alt={u.alt} loading="lazy" class="absolute inset-0 w-full h-full object-cover" />
               <figcaption class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent text-tle-white text-sm font-bold p-5">
                 {u.nombre}
               </figcaption>
@@ -427,7 +427,7 @@ const t = getDict(lang);
                 altura en todas las tarjetas, tengan logo o no. */}
             <div class="h-12 flex items-center mb-4">
               {r.logo && (
-                <img src={r.logo} alt={r.marca} loading="lazy" class="max-h-12 w-auto max-w-[70%] object-contain object-left" />
+                <img src={ruta(r.logo)} alt={r.marca} loading="lazy" class="max-h-12 w-auto max-w-[70%] object-contain object-left" />
               )}
             </div>
             <span class="block text-xs font-bold text-tle-accent tracking-wide mb-2">{r.anios}</span>

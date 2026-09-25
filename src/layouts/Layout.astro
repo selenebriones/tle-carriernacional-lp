@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 import Footer from '../components/Footer.astro';
-import { getDict } from '../i18n';
+import { getDict, ruta } from '../i18n';
 
 interface Props {
 	title: string;
@@ -16,11 +16,16 @@ const lang = Astro.currentLocale ?? 'es';
 const t = getDict(lang).header;
 
 // Enlace al mismo path en el otro idioma: quita/agrega el prefijo /en.
-const { pathname } = Astro.url;
+// Astro.url.pathname trae el `base` por delante, así que se quita antes.
+const pathname = Astro.url.pathname.slice(ruta('').length) || '/';
 const pathSinPrefijo = pathname.replace(/^\/en(\/|$)/, '/');
-const switchHref = lang === 'es'
-	? `/en${pathSinPrefijo === '/' ? '' : pathSinPrefijo}`
-	: pathSinPrefijo;
+const esHref = ruta(pathSinPrefijo);
+const enHref = ruta(`/en${pathSinPrefijo}`);
+const switchHref = lang === 'es' ? enHref : esHref;
+
+// SEO: URLs absolutas a partir de `site` (astro.config.mjs).
+const absoluta = (href: string) => new URL(href, Astro.site).href;
+const canonical = absoluta(lang === 'es' ? esHref : enHref);
 ---
 
 <!doctype html>
@@ -29,9 +34,17 @@ const switchHref = lang === 'es'
 		<meta charset="UTF-8" />
 		<meta name="description" content={description} />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/svg+xml" href={ruta('/favicon.svg')} />
 		<meta name="generator" content={Astro.generator} />
 		{noindex && <meta name="robots" content="noindex, nofollow" />}
+		{!noindex && (
+			<>
+				<link rel="canonical" href={canonical} />
+				<link rel="alternate" hreflang="es" href={absoluta(esHref)} />
+				<link rel="alternate" hreflang="en" href={absoluta(enHref)} />
+				<link rel="alternate" hreflang="x-default" href={absoluta(esHref)} />
+			</>
+		)}
 
 		<!-- Activa las animaciones solo si hay JS y el usuario no pidió reducir movimiento.
 		     Va inline y en el <head> para que corra antes del primer paint (evita flash). -->
@@ -64,14 +77,14 @@ const switchHref = lang === 'es'
 			id="main-header"
 		>
 			<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between transition-all duration-300">
-				<a href={lang === 'en' ? '/en' : '/'} class="shrink-0" aria-label={t.ariaInicio}>
-					<img src="/images/tle-logo.webp" alt="TLE" width="350" height="150" class="h-11 w-auto" />
+				<a href={ruta(lang === 'en' ? '/en/' : '/')} class="shrink-0" aria-label={t.ariaInicio}>
+					<img src={ruta('/images/tle-logo.webp')} alt="TLE" width="350" height="150" class="h-11 w-auto" />
 				</a>
 				<!-- Rutas absolutas (/#seccion) para que el menú también funcione desde
 				     otras páginas, como /gracias, donde un ancla suelta no lleva a nada. -->
 				<nav class="hidden md:flex gap-8" aria-label={t.ariaSecciones}>
 					{t.enlaces.map((e) => (
-						<a href={e.href} class="text-sm font-medium hover:text-tle-primary transition-colors">{e.texto}</a>
+						<a href={ruta(e.href)} class="text-sm font-medium hover:text-tle-primary transition-colors">{e.texto}</a>
 					))}
 				</nav>
 
@@ -84,7 +97,7 @@ const switchHref = lang === 'es'
 						{t.switchLabel}
 					</a>
 					<a
-						href={`${lang === 'en' ? '/en' : ''}/#contacto`}
+						href={ruta(`${lang === 'en' ? '/en' : ''}/#contacto`)}
 						class="bg-tle-primary text-tle-black px-5 sm:px-6 py-2.5 rounded-sm font-semibold text-xs sm:text-sm hover:bg-tle-accent transition-colors"
 					>
 						{t.cta}
@@ -116,7 +129,7 @@ const switchHref = lang === 'es'
 					{t.enlaces.map((e) => (
 						<li>
 							<a
-								href={e.href}
+								href={ruta(e.href)}
 								class="block py-3 text-sm font-medium border-b border-gray-100 last:border-0 hover:text-tle-primary transition-colors"
 							>
 								{e.texto}

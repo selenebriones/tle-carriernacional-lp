@@ -3,7 +3,7 @@
  * Cierre del sitio. Vive en el Layout para que todas las páginas lo compartan
  * y el claim no quede duplicado en dos archivos.
  */
-import { getDict } from '../i18n';
+import { getDict, ruta } from '../i18n';
 
 const lang = Astro.currentLocale ?? 'es';
 const t = getDict(lang).footer;
@@ -12,7 +12,7 @@ const t = getDict(lang).footer;
 <footer class="bg-tle-black text-tle-white py-16">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
     <!-- Versión sobre fondo oscuro: placa amarilla con letras negras -->
-    <img src="/images/tle-logo-footer.png" alt="TLE" width="140" height="80" loading="lazy" class="h-12 w-auto mx-auto mb-8" />
+    <img src={ruta('/images/tle-logo-footer.png')} alt="TLE" width="140" height="80" loading="lazy" class="h-12 w-auto mx-auto mb-8" />
     <h2 data-reveal class="text-xl sm:text-3xl font-display font-extrabold text-tle-primary mb-6 uppercase max-w-3xl mx-auto leading-tight">
       {t.h2}
     </h2>

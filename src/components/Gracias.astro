@@ -1,10 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getDict } from '../i18n';
+import { getDict, ruta } from '../i18n';
 
 const lang = Astro.currentLocale ?? 'es';
 const t = getDict(lang).gracias;
-const inicioHref = lang === 'en' ? '/en' : '/';
+const inicioHref = ruta(lang === 'en' ? '/en/' : '/');
 ---
 
 <Layout title={t.title} description={t.description} noindex>
@@ -13,7 +13,7 @@ const inicioHref = lang === 'en' ? '/en' : '/';
     <!-- Mismo tratamiento que las secciones claras de la landing: la foto en
          escala de grises, muy tenue, bajo una vela clara. -->
     <img
-      src="/images/bg_contacto.webp"
+      src={ruta('/images/bg_contacto.webp')}
       alt=""
       aria-hidden="true"
       class="absolute inset-0 w-full h-full object-cover grayscale opacity-18 pointer-events-none select-none"
