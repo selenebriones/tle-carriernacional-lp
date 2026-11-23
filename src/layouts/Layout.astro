@@ -29,7 +29,7 @@ const canonical = absoluta(lang === 'es' ? esHref : enHref);
 ---
 
 <!doctype html>
-<html lang={lang} class="scroll-smooth">
+<html lang={lang}>
 	<head>
 		<meta charset="UTF-8" />
 
@@ -200,6 +200,38 @@ const canonical = absoluta(lang === 'es' ? esHref : enHref);
 				menuMovil.querySelectorAll('a').forEach((a) => a.addEventListener('click', cerrarMenu));
 				document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarMenu(); });
 
+				// --- Scroll suave para enlaces internos ---
+				// No se usa la clase scroll-smooth en <html>: ScrollTrigger, al recalcular,
+				// lleva el scroll a 0 para medir y luego lo regresa; con scroll suave ese
+				// regreso es animado, mide en una posición intermedia y las animaciones de
+				// abajo quedaban adelantadas (aparecían de golpe con su sección). Por eso
+				// el desplazamiento suave se hace aquí, solo al hacer clic en un ancla.
+				const sinMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+				// Mientras dura el desplazamiento suave no se debe recalcular ScrollTrigger
+				// (el recálculo mueve el scroll y corta el desplazamiento a medio camino).
+				window.__anclando = false;
+				const finAnclaje = () => {
+					if (!window.__anclando) return;
+					window.__anclando = false;
+					document.dispatchEvent(new Event('tle:anclaje-fin'));
+				};
+				window.addEventListener('scrollend', finAnclaje);
+				document.addEventListener('click', (e) => {
+					const a = e.target.closest('a[href*="#"]');
+					if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+					const url = new URL(a.href, location.href);
+					if (url.pathname !== location.pathname || !url.hash) return;
+					const destino = document.getElementById(decodeURIComponent(url.hash.slice(1)));
+					if (!destino) return;
+					e.preventDefault();
+					if (!sinMovimiento) {
+						window.__anclando = true;
+						setTimeout(finAnclaje, 2000); // por si el navegador no emite scrollend
+					}
+					destino.scrollIntoView({ behavior: sinMovimiento ? 'auto' : 'smooth' });
+					history.pushState(null, '', url.hash);
+				});
+
 				// Header shrink on scroll
 				const header = document.getElementById('main-header');
 				const bar = header.firstElementChild;
@@ -219,6 +251,7 @@ const canonical = absoluta(lang === 'es' ? esHref : enHref);
 				if (!document.documentElement.classList.contains('js-anim') || typeof gsap === 'undefined') return;
 
 				gsap.registerPlugin(ScrollTrigger);
+
 
 				// Al terminar una animación quitamos el data-attribute ANTES de limpiar los
 				// estilos inline: si no, el elemento vuelve a heredar el opacity:0 del CSS.
@@ -244,7 +277,7 @@ const canonical = absoluta(lang === 'es' ? esHref : enHref);
 						opacity: 1,
 						duration: 0.8,
 						ease: 'power3.out',
-						scrollTrigger: { trigger: el, start: 'top 85%', once: true },
+						scrollTrigger: { trigger: el, start: 'clamp(top 85%)', once: true },
 						onComplete: () => settle(el),
 					});
 				});
@@ -258,7 +291,7 @@ const canonical = absoluta(lang === 'es' ? esHref : enHref);
 						duration: 0.7,
 						ease: 'power3.out',
 						stagger: 0.08,
-						scrollTrigger: { trigger: group, start: 'top 85%', once: true },
+						scrollTrigger: { trigger: group, start: 'clamp(top 85%)', once: true },
 						onComplete: () => settle(group, items),
 					});
 				});
@@ -305,25 +338,38 @@ const canonical = absoluta(lang === 'es' ? esHref : enHref);
 					document.fonts.ready.then(() => ScrollTrigger.refresh());
 				}
 
-				// Red de seguridad: las imágenes diferidas cambian la altura de la página
-				// después de que ScrollTrigger calculó los triggers, y una animación puede
-				// quedarse sin disparar dejando su bloque invisible. Tras 'load' se
-				// recalcula y se muestra a la fuerza lo que siga en opacity 0 y ya sea
-				// visible en pantalla.
+				// Las imágenes diferidas (loading="lazy") cambian la altura de la página
+				// después de que ScrollTrigger calculó dónde dispara cada animación. En vez
+				// de forzar a mostrar bloques (eso hacía que aparecieran de golpe y luego
+				// GSAP los volviera a animar: parpadeo), se recalculan los disparadores
+				// cada vez que termina de cargar una imagen. clamp() en el `start` cubre
+				// los bloques del final que nunca llegarían al 85% de la pantalla.
+				let refrescoPendiente;
+				let refrescoAplazado = false;
+				const refrescar = () => {
+					clearTimeout(refrescoPendiente);
+					refrescoPendiente = setTimeout(() => {
+						if (window.__anclando) { refrescoAplazado = true; return; }
+						ScrollTrigger.refresh();
+					}, 150);
+				};
+				document.addEventListener('tle:anclaje-fin', () => {
+					if (refrescoAplazado) { refrescoAplazado = false; ScrollTrigger.refresh(); }
+				});
+				document.querySelectorAll('img[loading="lazy"]').forEach((img) => {
+					if (!img.complete) img.addEventListener('load', refrescar, { once: true });
+				});
+
+				// Al cargar (p. ej. si se recarga la página a media altura), completar solo
+				// las animaciones cuyo disparador ya quedó atrás y que nunca arrancaron.
 				window.addEventListener('load', () => {
 					ScrollTrigger.refresh();
-					const rescatar = () => {
-						document.querySelectorAll('[data-reveal], [data-reveal-stagger]').forEach((el) => {
-							const r = el.getBoundingClientRect();
-							if (r.top > window.innerHeight) return; // aún no le toca
-							const objetivos = el.hasAttribute('data-reveal-stagger') ? el.children : [el];
-							Array.from(objetivos).forEach((t) => {
-								if (parseFloat(getComputedStyle(t).opacity) === 0) settle(el, objetivos);
-							});
-						});
-					};
-					rescatar();
-					window.addEventListener('scroll', rescatar, { passive: true });
+					ScrollTrigger.getAll().forEach((st) => {
+						const anim = st.animation;
+						if (anim && st.vars.once && st.start < ScrollTrigger.maxScroll(window) && st.scroll() > st.start && anim.progress() === 0) {
+							anim.progress(1);
+						}
+					});
 				});
 			});
 		</script>
