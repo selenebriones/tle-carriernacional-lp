@@ -210,7 +210,6 @@ export default {
       { icon: 'ph-first-aid-kit', titulo: 'Farmacéutica', copy: 'Cumplimiento de esquemas de entrega y coordinación estratégica para el abastecimiento de centros de distribución.' },
       { icon: 'ph-cpu', titulo: 'High Tech, Inteligencia Artificial y Data Centers', copy: 'Coordinación logística con disciplina operativa.' },
       { icon: 'ph-warning-diamond', titulo: 'HAZMAT', copy: 'Capacidad de respuesta y continuidad en el traslado de insumos, materias primas y producto terminado dentro del país.' },
-      { icon: 'ph-bowl-food', titulo: 'Grado Alimenticio', copy: 'Unidades equipadas con monitoreo de temperatura y estricto apego a normas de inocuidad.' },
     ],
   },
 

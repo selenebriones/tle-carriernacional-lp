@@ -210,7 +210,6 @@ export default {
       { icon: 'ph-first-aid-kit', titulo: 'Pharmaceutical', copy: 'Delivery-schedule compliance and strategic coordination to supply distribution centers.' },
       { icon: 'ph-cpu', titulo: 'High Tech, AI & Data Centers', copy: 'Logistics coordination with operational discipline.' },
       { icon: 'ph-warning-diamond', titulo: 'HAZMAT', copy: 'Responsiveness and continuity in moving supplies, raw materials, and finished goods nationwide.' },
-      { icon: 'ph-bowl-food', titulo: 'Food Grade', copy: 'Units equipped with temperature monitoring and strict adherence to food-safety standards.' },
     ],
   },
 
