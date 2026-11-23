@@ -7,7 +7,7 @@ export default {
   meta: {
     title: 'TLE | National Carrier — Integrated Transportation & Logistics',
     description:
-      'Greater control, visibility, and efficiency for your supply chain through integrated logistics, transportation, and warehousing solutions.',
+      'National full-truckload carrier: dry van, flatbed, intermodal, and HAZMAT. Own fleet, CTPAT and ISO 9001 for recurring operations.',
   },
 
   header: {
@@ -18,7 +18,7 @@ export default {
       { href: '/en/#unidades', texto: 'Fleet' },
       { href: '/en/#proceso', texto: 'Process' },
     ],
-    cta: 'Get a Quote',
+    cta: 'Request a proposal',
     ariaSecciones: 'Site sections',
     ariaAbrirMenu: 'Open menu',
     ariaCerrarMenu: 'Close menu',
@@ -28,11 +28,12 @@ export default {
 
   hero: {
     badge: 'National Carrier',
-    h1Pre: 'Your national operation, engineered to move forward with ',
-    h1Highlight: 'certainty',
-    p1: 'Greater control, visibility, and efficiency for your supply chain through integrated logistics, transportation, and warehousing solutions.',
+    h1Pre: 'National freight transportation for ',
+    h1Highlight: 'recurring operations',
+    p1: 'Own fleet, real-time traceability, and one consistent security standard.',
+    audiencia: 'For manufacturers, automotive companies, retailers, and logistics operators with recurring freight.',
     p2: 'Fewer providers to coordinate. One consistent standard of security and tracking.',
-    ctaPrimary: 'Quote your national operation',
+    ctaPrimary: 'Request a proposal',
     ctaSecondary: 'View services',
     imgAlt: 'TLE tractor-trailer with a flatbed in a maneuvering yard',
   },
@@ -168,12 +169,13 @@ export default {
 
   cotizacionCobertura: {
     titulo: 'Is your route within our network?',
-    copy: "If your origin and destination appear on the map, we can quote your shipment. Share your operation's details and a specialist will contact you.",
+    copy: 'We handle full-truckload and recurring operations on these corridors. Tell us about your operation and a specialist will present a proposal.',
   },
 
   cotizacionDefault: {
-    titulo: 'Request a national freight quote',
+    titulo: 'Request a proposal for your operation',
     copy: "Tell us what we need to understand your operation. A specialist will review your information and get in touch with you following TLE's commercial process.",
+    notaAlcance: 'We handle full-truckload and recurring operations. We do not handle parcels or single-piece shipments.',
   },
 
   unidades: {

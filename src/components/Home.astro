@@ -41,6 +41,9 @@ const t = getDict(lang);
       <p data-hero-anim class="text-gray-300 text-base sm:text-lg max-w-3xl mb-4 font-light leading-relaxed">
         {t.hero.p1}
       </p>
+      <p data-hero-anim class="text-gray-200 text-sm sm:text-base max-w-3xl mb-4 leading-relaxed">
+        {t.hero.audiencia}
+      </p>
       <p data-hero-anim class="text-tle-primary text-sm sm:text-base font-medium max-w-3xl mb-10">
         {t.hero.p2}
       </p>
@@ -54,6 +57,45 @@ const t = getDict(lang);
       </div>
     </div>
   </section>
+
+
+  <!-- ===================== 1b. RESPALDO INSTITUCIONAL (premios bajo el hero, pedido del cliente) ===================== -->
+  <section class="py-20 bg-tle-white border-y border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div data-reveal class="text-center mb-12">
+        <h2 class="text-2xl sm:text-3xl font-display font-bold text-tle-black uppercase tracking-wide">{t.institucional.heading}</h2>
+        <div class="w-16 h-1 bg-tle-primary mx-auto mt-4"></div>
+      </div>
+
+      <!-- Nota del cliente: aún no hay caso de éxito real, se publica el testimonio -->
+      <blockquote data-reveal class="max-w-3xl mx-auto text-center mb-16">
+        <i class="ph ph-quotes text-4xl text-tle-primary mb-4 block"></i>
+        <p class="text-base text-gray-700 leading-relaxed italic">
+          {t.institucional.quote}
+        </p>
+        <footer class="text-sm font-bold text-tle-black mt-6">
+          {t.institucional.quoteFooter}
+        </footer>
+      </blockquote>
+
+      <div data-reveal-stagger class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {t.institucional.items.map((r) => (
+          <div class="bg-tle-secondary p-6 rounded-sm border-t-2 border-tle-primary flex flex-col">
+            {/* Caja de alto fijo para que el año y el premio queden a la misma
+                altura en todas las tarjetas, tengan logo o no. */}
+            <div class="h-12 flex items-center mb-4">
+              {r.logo && (
+                <img src={ruta(r.logo)} alt={r.marca} loading="lazy" class="max-h-12 w-auto max-w-[70%] object-contain object-left" />
+              )}
+            </div>
+            <span class="block text-xs font-bold text-tle-accent tracking-wide mb-2">{r.anios}</span>
+            <p class="text-sm font-semibold text-tle-black leading-snug">{r.premio}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
 
 
   <!-- ===================== 2. CERTIFICACIONES ===================== -->
@@ -399,45 +441,6 @@ const t = getDict(lang);
       </div>
     </div>
   </section>
-
-
-  <!-- ===================== 11. RESPALDO INSTITUCIONAL ===================== -->
-  <section class="py-20 bg-tle-white border-y border-gray-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div data-reveal class="text-center mb-12">
-        <h2 class="text-2xl sm:text-3xl font-display font-bold text-tle-black uppercase tracking-wide">{t.institucional.heading}</h2>
-        <div class="w-16 h-1 bg-tle-primary mx-auto mt-4"></div>
-      </div>
-
-      <!-- Nota del cliente: aún no hay caso de éxito real, se publica el testimonio -->
-      <blockquote data-reveal class="max-w-3xl mx-auto text-center mb-16">
-        <i class="ph ph-quotes text-4xl text-tle-primary mb-4 block"></i>
-        <p class="text-base text-gray-700 leading-relaxed italic">
-          {t.institucional.quote}
-        </p>
-        <footer class="text-sm font-bold text-tle-black mt-6">
-          {t.institucional.quoteFooter}
-        </footer>
-      </blockquote>
-
-      <div data-reveal-stagger class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {t.institucional.items.map((r) => (
-          <div class="bg-tle-secondary p-6 rounded-sm border-t-2 border-tle-primary flex flex-col">
-            {/* Caja de alto fijo para que el año y el premio queden a la misma
-                altura en todas las tarjetas, tengan logo o no. */}
-            <div class="h-12 flex items-center mb-4">
-              {r.logo && (
-                <img src={ruta(r.logo)} alt={r.marca} loading="lazy" class="max-h-12 w-auto max-w-[70%] object-contain object-left" />
-              )}
-            </div>
-            <span class="block text-xs font-bold text-tle-accent tracking-wide mb-2">{r.anios}</span>
-            <p class="text-sm font-semibold text-tle-black leading-snug">{r.premio}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-
 
 
   <!-- ===================== 12. COTIZACIÓN ===================== -->

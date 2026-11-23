@@ -7,7 +7,7 @@ export default {
   meta: {
     title: 'TLE | Carrier Nacional — Transporte y Logística Integrales',
     description:
-      'Mayor control, visibilidad y eficiencia para tu cadena de suministro a través de soluciones integrales de logística, transporte y almacenamiento.',
+      'Carrier nacional de carga completa: caja seca, plataforma, intermodal y HAZMAT. Flota propia, CTPAT e ISO 9001 para operaciones recurrentes.',
   },
 
   header: {
@@ -18,7 +18,7 @@ export default {
       { href: '/#unidades', texto: 'Unidades' },
       { href: '/#proceso', texto: 'Proceso' },
     ],
-    cta: 'Cotizar Ahora',
+    cta: 'Solicitar propuesta',
     ariaSecciones: 'Secciones del sitio',
     ariaAbrirMenu: 'Abrir menú',
     ariaCerrarMenu: 'Cerrar menú',
@@ -28,11 +28,12 @@ export default {
 
   hero: {
     badge: 'Carrier Nacional',
-    h1Pre: 'Tu operación nacional, diseñada para avanzar con ',
-    h1Highlight: 'certeza',
-    p1: 'Mayor control, visibilidad y eficiencia para tu cadena de suministro a través de soluciones integrales de logística, transporte y almacenamiento.',
+    h1Pre: 'Transporte de carga nacional para ',
+    h1Highlight: 'operaciones recurrentes',
+    p1: 'Flota propia, trazabilidad en tiempo real y un mismo estándar de seguridad.',
+    audiencia: 'Para empresas manufactureras, automotrices, de retail y operadores logísticos con carga recurrente.',
     p2: 'Menos proveedores que coordinar. Un mismo estándar de seguridad y seguimiento.',
-    ctaPrimary: 'Cotizar operación nacional',
+    ctaPrimary: 'Solicitar propuesta',
     ctaSecondary: 'Ver servicios',
     imgAlt: 'Tractocamión TLE con plataforma en patio de maniobras',
   },
@@ -106,7 +107,7 @@ export default {
         pos: 'object-left',
         bullets: [
           'Reduce costos logísticos en largas distancias y asegura capacidad continua.',
-          'Ideal para grandes volúmenes y carga masiva en rutas nacionales e transfronterizas.',
+          'Ideal para grandes volúmenes y carga masiva en rutas nacionales y transfronterizas.',
           'Combina la flexibilidad del camión con la eficiencia económica y ambiental del tren.',
         ],
       },
@@ -168,12 +169,13 @@ export default {
 
   cotizacionCobertura: {
     titulo: '¿Tu ruta está en nuestra red?',
-    copy: 'Si tu origen y destino aparecen en el mapa, podemos cotizarte. Déjanos los datos de tu operación y un especialista te contacta.',
+    copy: 'Atendemos carga completa y operaciones recurrentes en estos corredores. Cuéntanos tu operación y un especialista te presenta una propuesta.',
   },
 
   cotizacionDefault: {
-    titulo: 'Solicita una cotización nacional',
+    titulo: 'Solicita una propuesta para tu operación',
     copy: 'Cuéntanos lo necesario para entender tu operación. Un especialista revisará la información y se pondrá en contacto contigo conforme al proceso comercial de TLE.',
+    notaAlcance: 'Atendemos carga completa y operaciones recurrentes. No manejamos paquetería ni envíos de una sola pieza.',
   },
 
   unidades: {
