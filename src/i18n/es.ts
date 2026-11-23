@@ -253,7 +253,7 @@ export default {
       { anios: '11°', premio: 'Carrier Excellence Awards AAA Category', logo: '/images/logo-penske.svg', alto: 'h-10', marca: 'Penske' },
       { anios: '2025', premio: 'Recognition for Shared Excellence', logo: '/images/logo-dsv.svg', alto: 'h-9', marca: 'DSV' },
       { anios: '2021', premio: 'Ever Better and AAA Customer Award', logo: '/images/logo-ryder.svg', alto: 'h-11', marca: 'Ryder' },
-      { anios: '2020', premio: 'Best Carrier Award', logo: '/images/constellation.webp', alto: 'h-16', marca: 'Constellation Brands' },
+      { anios: '2020', premio: 'Best Carrier Award', logo: '/images/logo-constellation.webp', alto: 'h-16', marca: 'Constellation Brands' },
       { anios: '2018', premio: 'Golden Carrier', logo: '/images/logo-maersk.svg', alto: 'h-9', marca: 'Maersk' },
     ],
   },
